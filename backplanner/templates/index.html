@@ -1,6 +1,49 @@
 {% extends "layout.html" %}
 
 {% block body %}
+<div class="card my-2 rounded-0" style="border:none">
+    <div class="card-header d-flex justify-content-between rounded-0" style="background-color: PaleGoldenRod;">
+        <strong>How It Works</strong> 
+        <a href="#howItWorksCollapse" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="howItWorksCollapse"><i class="bi bi-arrow-up-square" id="howItWorksExpand" style="color:black;"></i></a>
+    </div>
+    <div class="card-body collapse show" id="howItWorksCollapse">
+        Content that introduces the user to Backplanner and explains how it works. Include a button for registration as well.
+    </div>
+</div>
+<div class="card">
+    <div class="card-header d-flex justify-content-center" style="background-color: PaleGoldenRod;">
+        <h3>Back Facts</h3>
+    </div>
+    <div class="card-body d-flex justify-content-around">
+        <div>
+           <label for="targetWeight">Target Weight: <input type="number" id="targetWeight" placeholder="0" min="0"> Units: <input type="radio" name="targetUnits" id="grams" value="grams" checked><label for="grams">g</label> <input type="radio" name="targetUnits" id="ounces" value="ounces"><label for="ounces">oz</label></label>
+            <div>Total Pack Weight: <span>XXXX</span>, Variance: <span>XxXx</span></div>
+            <div>Total Items: <span>XXXX</span></div> 
+        </div>
+        <div>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Section</th>
+                        <th scope="col">Weight (g)</th>
+                        <th scope="col">Weight (oz)</th>
+                        <th scope="col">Item Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Bags</th>
+                        <td>XXX</td>
+                        <td>XxX</td>
+                        <td>3</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="border border-primary rounded my-1 d-flex justify-content-between align-items-center"><span>Create a New Section </span><input type="text" name="" id="" style="display:none;"><i class="bi bi-plus-circle mr-1 text-primary"></i></div>
+
 Sections:
 <ol>
     <li>According Explanatory Text, with a 'Do Not Show Again' option, or, Do not show expanded after one visit.</li>
@@ -36,6 +79,8 @@ Sections:
             <li><i class="bi bi-trash"></i></li>
             <li><i class="bi bi-grip-horizontal"></i></li>
             <li><i class="bi bi-arrows-move"></i></li>
+            <li><i class="bi bi-arrow-down-square"></i></li>
+            <li><i class="bi bi-arrow-up-square"></i></li>
         </ul>
     </li>
 </ol>
