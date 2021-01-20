@@ -2,7 +2,7 @@
 
 {% block body %}
 <div class="card my-2 rounded-0" style="border:none">
-    <div class="card-header d-flex justify-content-between rounded-0" style="background-color: PaleGoldenRod;">
+    <div class="card-header d-flex justify-content-between rounded-0" style="background-color: gold;">
         <strong>How It Works</strong> 
         <a href="#howItWorksCollapse" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="howItWorksCollapse"><i class="bi bi-arrow-up-square" id="howItWorksExpand" style="color:black;"></i></a>
     </div>
@@ -11,7 +11,7 @@
     </div>
 </div>
 <div class="card">
-    <div class="card-header d-flex justify-content-center" style="background-color: PaleGoldenRod;">
+    <div class="card-header d-flex justify-content-center" style="background-color: gold;">
         <h3>Back Facts</h3>
     </div>
     <div class="card-body d-flex justify-content-around">
@@ -21,16 +21,16 @@
             <div>Total Items: <span>XXXX</span></div> 
         </div>
         <div>
-            <table class="table table-hover">
+            <table class="table table-hover table-sm">
                 <thead>
                     <tr>
-                        <th scope="col">Section</th>
+                        <th scope="col">Category</th>
                         <th scope="col">Weight (g)</th>
                         <th scope="col">Weight (oz)</th>
                         <th scope="col">Item Count</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="category-dash">
                     <tr>
                         <th scope="row">Bags</th>
                         <td>XXX</td>
@@ -42,7 +42,56 @@
         </div>
     </div>
 </div>
-<div class="border border-primary rounded my-1 d-flex justify-content-between align-items-center"><span>Create a New Section </span><input type="text" name="" id="" style="display:none;"><i class="bi bi-plus-circle mr-1 text-primary"></i></div>
+<div id="categories">
+    <div class="border rounded my-1 py-1 d-flex justify-content-center align-items-center category" style="background-color:gold" id="category-generator">
+        <span>Create A New Category: </span>
+        <input type="text" name="create-category" id="create-category" class="ml-2" placeholder="Category Name" style="border: 0;">
+        <input type="submit" value="Create" id="category-submit" class="ml-1 btn btn-outline-secondary btn-sm" disabled>
+    </div>
+
+    <div class="category-category-name card mt-1" hidden>
+        <div class="card-header d-flex justify-content-between" id="category-name">
+            <span class="h4">Category Name</span> 
+            <i class="bi bi-x-square ml-1 delete"></i>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Include</th>
+                        <th>Item Description</th>
+                        <th>QTY</th>
+                        <th>Grams</th>
+                        <th>Ounces</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody class="category-name tbod">
+                </tbody>
+            </table>
+            <div class="category-name item d-flex justify-content-center p-1 border rounded" style="background-color:gold">
+                <div class="mr-1">
+                    <span>Create A New Item: </span>
+                    <input type="text" class="category-name description" style="border: 0;">
+                </div>
+                <div class="mr-1">
+                    <span>Quantity: </span>
+                    <input type="text" class="category-name quantity" style="border: 0;" size="3">
+                </div>
+                <div class="mr-1">
+                    <span>Weight: </span>
+                    <input type="text" min="0" style="border: 0;" size="5">
+                    <span>Units: </span>
+                    <input type="radio" name="targetUnits" id="grams" value="grams" checked>
+                        <label for="grams">g</label>
+                    <input type="radio" name="targetUnits" id="ounces" value="ounces"><label for="ounces">oz</label>    
+                </div>
+                <input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm item-submit" disabled> 
+            </div>
+        </div>
+    </div>
+</div>
+
 
 Sections:
 <ol>
