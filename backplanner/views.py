@@ -1,5 +1,14 @@
+import json
+from django.contrib.auth import authenticate, login, logout
+from django.db import IntegrityError
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.urls import reverse
+from datetime import datetime
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+
+from .models import User, Item
 
 def index(request):
     return render(request, "index.html")
@@ -54,3 +63,6 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "register.html")
+
+def new_item(request):
+    pass
