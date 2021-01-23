@@ -54,12 +54,22 @@ window.onload = function() {
         let $display = name.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
         let $name = name.toLowerCase();
 
-        let $node = `<div class="category ${$name} card mt-1" id="${$name}"><div class="card-header d-flex justify-content-between" style="background-color: gold;"><span class="h4">${$display}</span><i class="bi bi-x-square ml-1 cat-delete"></i></div><div class="card-body"><table class="table table-hover table-sm"><thead><tr><th>Include</th><th>Item Description</th><th>QTY</th><th>Grams</th><th>Ounces</th><th>Delete</th></tr></thead><tbody class="${$name} tbod"></tbody></table><form class="${$name} item d-flex justify-content-center p-1 border rounded"><div class="mr-1"><span>Create A New Item: </span><input type="text" name="item"></div><div class="mr-1"><span>Quantity: </span><input type="text" name="quantity" size="3"></div><div class="mr-1"><span>Weight: </span><input type="text" min="0" size="5" name="weight"><span>Units: </span><input type="radio" name="units" id="${$name}-grams" value="grams" checked><label for="${$name}-grams"> g</label><input type="radio" name="units" id="${$name}-ounces" value="ounces"><label for="${$name}-ounces"> oz</label></div><input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm" id="${$name}-item-submit"></form></div></div>`;
+        let $node = `<div class="category card mt-1" id="${$name}"><div class="card-header d-flex justify-content-between" style="background-color: gold;"><span class="h4"><input type="checkbox" class="include-${$name}" checked>${$display}</span><i class="bi bi-x-square ml-1 ${$name}-cat-delete"></i></div><div class="card-body"><table class="table table-hover table-sm"><thead><tr><th>Include</th><th>Item Description</th><th>QTY</th><th>Grams</th><th>Ounces</th><th>Delete</th></tr></thead><tbody class="${$name} tbod"></tbody></table><form class="${$name} item d-flex justify-content-center p-1 border rounded"><div class="mr-1"><span>Create A New Item: </span><input type="text" name="item"></div><div class="mr-1"><span>Quantity: </span><input type="text" name="quantity" size="3"></div><div class="mr-1"><span>Weight: </span><input type="text" min="0" size="5" name="weight"><span>Units: </span><input type="radio" name="units" id="${$name}-grams" value="grams" checked><label for="${$name}-grams"> g</label><input type="radio" name="units" id="${$name}-ounces" value="ounces"><label for="${$name}-ounces"> oz</label></div><input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm" id="${$name}-item-submit"></form></div></div>`;
 
         // Animate new section
         $($node).hide().insertBefore('#category-generator').slideDown('slow');
         $('#create-category').val('');
         $('#category-submit').prop('disabled', true);
+
+        // Add delete functionality to categories
+        $(`.${$name}-cat-delete`).mouseenter(()=>{$(`.${$name}-cat-delete`).css('color','firebrick')}).mouseleave(()=>{$(`.${$name}-cat-delete`).css('color','black')});
+        $(`.${$name}-cat-delete`).on('click', (e) => {
+            if (confirm(`Are you sure you want to delete ${$display} from your pack? All items will be lost.`)) {
+                console.log('delete the category from the page, and remove all items from db that match the category.');
+            } else {
+                console.log('do nothing');
+            }
+        });
 
         // Update the dashboard
         let $row = (`<tr class="${$name}"><th scope="row">${$display}</th><td class="dash-grams">0</td><td class="dash-oz">0</td><td class="dash-count">0</td></tr>`);

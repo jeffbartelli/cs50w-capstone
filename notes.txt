@@ -11,13 +11,14 @@ I have been working for way too long on creating the new item interface. I have 
 I have successfully created the object to send to the db. I have also successfully built capabilities to update the dashboard table.
 Ran into a problem with the structure of my event listener assignments, but I found the fix (needed to get rid of a forEach operation)
 I've added event listeners to the item delete buttons, so there is now a hover effect and a confirm dialogue that I will fill out later.
+I added event listeners for deleting entire categories
 Next I will update the total pack weight and items
 Next up:
 1. finish the dashboard operations
 2. fix the create item div so that the create button is only active once all fields are populated
-3. event handlers for deleting categories
+3. DONE - event handlers for deleting categories
 4. event handlers for include exclude of items
-5. inputs for include exclude of categories
+5. DONE - inputs for include exclude of categories
 6. event handlers for include exclude of categories
 7. database connections for all
 8. set up page to auto populate categories and items from the database
