@@ -20,6 +20,10 @@ Now I've created dummy data to allow for autopopulating on load.
 The page autopopulates on load. It was fairly simple to set up, with minimal work in the python index function. But now my pre-existing scripts are generating very strange results. When I create a new category, it produces two cards, then 4, then 8, then 16! But this was easily fixed by using the jquery .hasClass() method to replace a troublesome for loop.
 I've now got the python queries all set up to populate the page with existing data and to fully update the dashboard.
 Now I need to attached events to the content generated on load. And then I can install the APIs. Then, I'm done?
+I went through the process of attaching event listeners to everything, as well as replacing the item delete icon with a button group that has an update and delete button. The plan being that when update is clicked, the fields will become active for edits and the button names will change to save and cancel.
+I've built db connections for updating target weight and how it works collapse.
+
+
 Next up:
 1. DONE - finish the dashboard operations
 2. DONE - fix the create item div so that the create button is only active once all fields are populated
@@ -28,18 +32,20 @@ Next up:
 5. DONE - event handlers for include exclude of items
 6. DONE - event handlers for include exclude of categories
 7. DONE - set up page to auto populate categories and items from the database
-8. ensure necessary event listeners are attached to all...
+8. DONE - ensure necessary event listeners are attached to all...
 9. Items: 
     a. on exclude all text goes gray
-    b. all inputs disabled
-    c. add an update button in a column before delete
+    b. DONE - all inputs disabled
+    c. DONE - add an update button in a column before delete
     d. on 'update' click, activate inputs and replace button with submit/cancel button group
-    e. on submit, change record
+    e. on submit, change record (PUT) [line 201]
 10. database connections for all
 activate all event listeners (may have to do through template loops applying script blocks in html)
-    a. target weight update
+    a. DONE - target weight update
     b. category deletes
     c. item deletes
     d. include/exclude updates
-    e. create new item button activation for preloaded categories
+    e. DONE - create new item button activation for preloaded categories
     f. send new item to db, (updates with js to avoid page reloads)
+    g. item updates with button functionalities
+11. DONE - checkbox in how it works to have it load collapsed

@@ -18,10 +18,11 @@
             <li>And that's it! Use the include button to include and exclude items from consideration.</li>
             <li>You can also delete items and categories, but be careful: once you delete them they are gone forever.</li>
         </ol>
-        
+        {% if user.is_authenticated %}
+        <p><input type="checkbox" id="confirmCollapse" {% if user.visited %}checked{% endif %}> Click this box for the instructions to be collapsed on login.</p>
     </div>
 </div>
-{% if user.is_authenticated %}
+
 <div class="card">
     <div class="card-header d-flex justify-content-center" style="background-color: gold;">
         <h3>Back Facts</h3>
@@ -29,8 +30,8 @@
     <div class="card-body">
         <div class="d-flex justify-content-center">
             <form id="packWeight">
-                <label for="targetWeight">Target Weight: <input type="text" id="targetWeight" placeholder="0" min="0" size="3" value="{{ user.weight }}"> Units: <input type="radio" name="targetUnits" id="total-grams" value="grams" {% if user.units == "grams" %}checked {% endif %}><label for="grams">g</label> <input type="radio" name="targetUnits" id="total-ounces" value="ounces" {% if user.units == "ounces" %} checked {% endif %}><label for="ounces">oz</label></label>
-                <input type="submit" value="Update" id="update-weight" class="btn btn-secondary btn-sm">
+                <label for="targetWeight">Target Weight: <input type="text" id="targetWeight" data-value="{{ user.weight }}" placeholder="0" min="0" size="3" value="{{ user.weight }}" autofocus> Units: <input type="radio" name="targetUnits" id="total-grams" value="grams" {% if user.units == "grams" %}checked {% endif %}><label for="grams">g</label> <input type="radio" name="targetUnits" id="total-ounces" value="ounces" {% if user.units == "ounces" %} checked {% endif %}><label for="ounces">oz</label></label>
+                <input type="submit" value="Update" id="update-weight" class="btn btn-outline-secondary btn-sm">
             </form>
         </div>
         <div class="d-flex justify-content-around">
@@ -108,8 +109,8 @@
     {% for cats in categories %}
     <div class="category card mt-1" id="{{ cats }}">
         <div class="card-header d-flex justify-content-between" style="background-color: gold;">
-            <span class="h4"><input type="checkbox" class="include-{{ cats }}" checked>{{ cats|capfirst }}</span>
-            <i class="bi bi-x-square ml-1 {{ cats }}-cat-delete"></i>
+            <span class="h4"><input type="checkbox" class="include-{{ cats }}" checked>  {{ cats|capfirst }}</span>
+            <i class="bi bi-x-square ml-1 {{ cats }}-cat-delete h4"></i>
         </div>
         <div class="card-body">
             <table class="table table-hover table-sm">
@@ -120,7 +121,7 @@
                         <th>QTY</th>
                         <th>Grams</th>
                         <th>Ounces</th>
-                        <th>Delete</th>
+                        <th>Manage</th>
                     </tr>
                 </thead>
                 <tbody class="{{ cats }} tbod">
@@ -128,22 +129,25 @@
                     {% if its.category == cats %}
                     <tr class="{{ its.item }}">
                         <td>
-                            <input type="checkbox" name="include" class="include include-{{ its.item }}" checked>
+                            <input type="checkbox" name="include" class="include-item include-{{ its.category }}-{{ its.item }}" checked>
                         </td>
                         <td>
-                            <input type="text" name="item" class="items item" value="{{ its.item|capfirst }}">
+                            <input type="text" name="item" class="items item" value="{{ its.item|capfirst }}" disabled>
                         </td>
                         <td>
-                            <input type="number" name="quantity" class="items quantity" value="{{ its.quantity }}">
+                            <input type="number" name="quantity" class="items quantity" value="{{ its.quantity }}" disabled>
                         </td>
                         <td>
-                            <input type="number" name="grams" class="items grams" value="{{ its.grams }}">
+                            <input type="number" name="grams" class="items grams" value="{{ its.grams }}" disabled>
                         </td>
                         <td>
-                            <input type="number" name="ounces" class="items ounces" value="{{ its.ounces }}">
+                            <input type="number" name="ounces" class="items ounces" value="{{ its.ounces }}" disabled>
                         </td>
                         <td>
-                            <i class="bi bi-x-circle" id="{{ cats }}-{{ its.item }}-delete"></i>
+                            <div class="btn-group" role="group">
+                                <button class="btn btn-outline-secondary btn-sm update-item" type="button">Update</button>
+                                <button class="btn btn-outline-secondary btn-sm delete-item" type="button" id="{{ cats }}-{{ its.item }}-delete">Delete</button>
+                            </div>
                         </td>
                     </tr>
                     {% endif %}

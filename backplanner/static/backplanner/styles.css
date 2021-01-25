@@ -1,0 +1,8 @@
+input.items {
+    border: none;
+}
+
+input[type=checkbox] {
+    height: 1em;
+    width: 1em;
+}

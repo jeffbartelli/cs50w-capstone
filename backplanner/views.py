@@ -77,5 +77,26 @@ def register(request):
     else:
         return render(request, "register.html")
 
+@csrf_exempt
+@login_required
 def new_item(request):
     pass
+
+@csrf_exempt
+@login_required
+def total_weight(request):
+    user = User.objects.get(username = request.user)
+    data = json.loads(request.body)
+    user.weight = data["weight"]
+    user.units = data["units"]
+    user.save()
+    return HttpResponse(status=204)
+
+@csrf_exempt
+@login_required
+def return_visitor(request):
+    user = User.objects.get(username = request.user)
+    data = json.loads(request.body)
+    user.visited = data["visited"]
+    user.save()
+    return HttpResponse(status=204)
