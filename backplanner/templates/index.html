@@ -1,13 +1,24 @@
 {% extends "layout.html" %}
 
 {% block body %}
+
 <div class="card my-2 rounded-0" style="border:none">
     <div class="card-header d-flex justify-content-between rounded-0" style="background-color: gold;">
         <strong>How It Works</strong> 
-        <a href="#howItWorksCollapse" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="howItWorksCollapse"><i class="bi bi-arrow-up-square" id="howItWorksExpand" style="color:black;"></i></a>
+        <a href="#howItWorksCollapse" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="howItWorksCollapse"><i class="bi bi-arrow-{% if user.visited %}down{% else %}up{% endif %}-square" id="howItWorksExpand" style="color:black;"></i></a>
     </div>
-    <div class="card-body collapse show" id="howItWorksCollapse">
-        Content that introduces the user to Backplanner and explains how it works. Include a button for registration as well.
+    <div class="card-body collapse {% if not user.visited %}show{% endif %}" id="howItWorksCollapse">
+        <p>Are you going on a trip and you're concerned about the weight of your pack/pannier/bag? Then Backplanner is the tool for you! It's simple interface will allow you to record and track all of stuff so that you can be sure you won't carry too much weight again.</p>
+        <h5>Instructions</h5>
+        <ol>
+            <li>Enter a target weight for your pack. You can always update this later.</li>
+            <li>Create a new category: Categories are where all of your stuff is kept. In the 'Create a New Category' bar, enter a category name then click <strong>Create</strong>.</li>
+            <li>Each category has a 'Create a New item' bar. Enter each of these details and then click <strong>Create</strong> to add your new item. The new item's weight will now be tracked in the Back Facts section.</li>
+            <li>Enter all of your items into categories. You will need to provide a weight for each item so that it can be tracked. We recommend you use a digital kitchen scale that can measure tenths of a gram and has a capacity up to 5 kilograms.</li>
+            <li>And that's it! Use the include button to include and exclude items from consideration.</li>
+            <li>You can also delete items and categories, but be careful: once you delete them they are gone forever.</li>
+        </ol>
+        
     </div>
 </div>
 {% if user.is_authenticated %}
@@ -15,14 +26,43 @@
     <div class="card-header d-flex justify-content-center" style="background-color: gold;">
         <h3>Back Facts</h3>
     </div>
-    <div class="card-body d-flex justify-content-around">
-        <div>
-           <label for="targetWeight">Target Weight: <input type="text" id="targetWeight" placeholder="0" min="0" size="3"> Units: <input type="radio" name="targetUnits" id="grams" value="grams" checked><label for="grams">g</label> <input type="radio" name="targetUnits" id="ounces" value="ounces"><label for="ounces">oz</label></label>
-            <div>Total Pack Weight: <span id="totalWeight">XXXX</span>, Variance: <span id="totalVar">XxXx</span></div>
-            <div>Total Items: <span id="totalItemCount">XXXX</span></div> 
+    <div class="card-body">
+        <div class="d-flex justify-content-center">
+            <form id="packWeight">
+                <label for="targetWeight">Target Weight: <input type="text" id="targetWeight" placeholder="0" min="0" size="3" value="{{ user.weight }}"> Units: <input type="radio" name="targetUnits" id="total-grams" value="grams" {% if user.units == "grams" %}checked {% endif %}><label for="grams">g</label> <input type="radio" name="targetUnits" id="total-ounces" value="ounces" {% if user.units == "ounces" %} checked {% endif %}><label for="ounces">oz</label></label>
+                <input type="submit" value="Update" id="update-weight" class="btn btn-secondary btn-sm">
+            </form>
         </div>
-        <div>
-            <table class="table table-hover table-sm">
+        <div class="d-flex justify-content-around">
+            <div>
+                <table class="table table-sm table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col"></th>
+                            <th scope="col">grams</th>
+                            <th scope="col">ounces</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">Total Pack Weight</th>
+                            <td id="total-g" style="text-align: right;">0</td>
+                            <td id="total-oz" style="text-align: right;">0</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Variance (+/-)</th>
+                            <td id="var-g" style="text-align: right;">0</td>
+                            <td id="var-oz" style="text-align: right;">0</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Total Items</th>
+                            <td id="total-item" colspan="2" style="text-align: center;">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+            <table class="table table-hover table-sm" id="cat-table">
                 <thead>
                     <tr>
                         <th scope="col">Category</th>
@@ -32,12 +72,107 @@
                     </tr>
                 </thead>
                 <tbody id="category-dash">
+                    {% for cats in categories %}
+                    <tr class="{{ cats }}">
+                        <th scope="row">{{ cats|capfirst }}</th>
+                        <td class="dash-grams" style="text-align: right;">
+                            {% for g in grams %}
+                            {% if g.category == cats %}
+                            {{ g.total_g|floatformat:"1" }}
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td class="dash-oz" style="text-align: right;">
+                            {% for oz in ounces %}
+                            {% if oz.category == cats %}
+                            {{ oz.total_oz|floatformat:"1" }}
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td class="dash-count" style="text-align: center;">
+                            {% for ct in counts %}
+                            {% if ct.category == cats %}
+                            {{ ct.total_ct }}
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>
 <div id="categories">
+    {% for cats in categories %}
+    <div class="category card mt-1" id="{{ cats }}">
+        <div class="card-header d-flex justify-content-between" style="background-color: gold;">
+            <span class="h4"><input type="checkbox" class="include-{{ cats }}" checked>{{ cats|capfirst }}</span>
+            <i class="bi bi-x-square ml-1 {{ cats }}-cat-delete"></i>
+        </div>
+        <div class="card-body">
+            <table class="table table-hover table-sm">
+                <thead>
+                    <tr>
+                        <th>Include</th>
+                        <th>Item Description</th>
+                        <th>QTY</th>
+                        <th>Grams</th>
+                        <th>Ounces</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tbody class="{{ cats }} tbod">
+                    {% for its in items %}
+                    {% if its.category == cats %}
+                    <tr class="{{ its.item }}">
+                        <td>
+                            <input type="checkbox" name="include" class="include include-{{ its.item }}" checked>
+                        </td>
+                        <td>
+                            <input type="text" name="item" class="items item" value="{{ its.item|capfirst }}">
+                        </td>
+                        <td>
+                            <input type="number" name="quantity" class="items quantity" value="{{ its.quantity }}">
+                        </td>
+                        <td>
+                            <input type="number" name="grams" class="items grams" value="{{ its.grams }}">
+                        </td>
+                        <td>
+                            <input type="number" name="ounces" class="items ounces" value="{{ its.ounces }}">
+                        </td>
+                        <td>
+                            <i class="bi bi-x-circle" id="{{ cats }}-{{ its.item }}-delete"></i>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            <form class="{{ cats }}-item-generator d-flex justify-content-center p-1 border rounded">
+                <div class="mr-1">
+                    <span>Create A New Item: </span>
+                    <input type="text" name="item" class="{{ cats }}-desc" autofocus>
+                </div>
+                <div class="mr-1">
+                    <span>Quantity: </span>
+                    <input type="text" name="quantity" size="3" class="{{ cats }}-qty">
+                </div>
+                <div class="mr-1">
+                    <span>Weight: </span>
+                    <input type="text" min="0" size="5" name="weight" class="{{ cats }}-weight">
+                    <span>Units: </span>
+                    <input type="radio" name="units" id="{{ cats }}-grams" value="grams" checked>
+                    <label for="{{ cats }}-grams"> g</label>
+                    <input type="radio" name="units" id="{{ cats }}-ounces" value="ounces">
+                    <label for="{{ cats }}-ounces"> oz</label>
+                </div>
+                <input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm" id="{{ cats }}-item-submit" disabled>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
     <div class="border rounded my-1 py-1 d-flex justify-content-center align-items-center" style="background-color:gold" id="category-generator">
         <span>Create A New Category: </span>
         <input type="text" name="create-category" id="create-category" class="ml-2" placeholder="Category Name" style="border: 0;">
@@ -87,46 +222,4 @@
     </div>
 </div>
 {% endif %}
-
-Sections:
-<ol>
-    <li>According Explanatory Text, with a 'Do Not Show Again' option, or, Do not show expanded after one visit.</li>
-    <li>Dashboard Section
-        <ul>
-            <li>Target Weight</li>
-            <li>Total Pack Weight</li>
-            <li>Total Items</li>
-            <li>Section Totals?</li>
-        </ul>
-    </li>
-    <li>Categories
-        <ul>
-            <li>Category Header (with name)</li>
-            <li>Category SubTotals</li>
-            <li>Item Table
-                <ul>
-                    <li>table headers</li>
-                    <li>table rows (populated from db)</li>
-                    <li>new item input form (not form based?)</li>
-                </ul>
-            </li>
-        </ul>
-    </li>
-    <li>Beautify Layout/Index</li>
-    <li>Beautify the Register and Login pages</li>
-    <li>Click and Drag Categories To Reorder</li>
-    <li>Click and Drag Items To Reorder</li>
-    <li>Item Object
-        <ul>
-            <li>a table row, with delete button and most model fields</li>
-            <li><i class="bi bi-x-circle"></i></li>
-            <li><i class="bi bi-trash"></i></li>
-            <li><i class="bi bi-grip-horizontal"></i></li>
-            <li><i class="bi bi-arrows-move"></i></li>
-            <li><i class="bi bi-arrow-down-square"></i></li>
-            <li><i class="bi bi-arrow-up-square"></i></li>
-        </ul>
-    </li>
-</ol>
-
 {% endblock %}

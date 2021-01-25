@@ -1,6 +1,7 @@
 import json
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
+from django.db.models import Sum, Count
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.urls import reverse
@@ -11,7 +12,19 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import User, Item
 
 def index(request):
-    return render(request, "index.html")
+    categories = Item.objects.filter(user=request.user.id).values_list('category', flat=True).distinct()
+    items = Item.objects.filter(user=request.user.id)
+    categorySubG = Item.objects.filter(user=request.user.id).values('category').annotate(total_g=Sum('grams'))
+    categorySubOz = Item.objects.filter(user=request.user.id).values('category').annotate(total_oz=Sum('ounces'))
+    categorySubCt = Item.objects.filter(user=request.user.id).values('category').annotate(total_ct=Sum('quantity'))
+    
+    return render(request, "index.html", {
+        "categories": categories,
+        "items": items,
+        "grams": categorySubG,
+        "ounces": categorySubOz,
+        "counts": categorySubCt
+    })
 
 def login_view(request):
     if request.method == "POST":

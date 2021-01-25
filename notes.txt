@@ -13,12 +13,33 @@ Ran into a problem with the structure of my event listener assignments, but I fo
 I've added event listeners to the item delete buttons, so there is now a hover effect and a confirm dialogue that I will fill out later.
 I added event listeners for deleting entire categories
 Next I will update the total pack weight and items
+The dashboard tables are fully functional.
+I've fixed the new item dialogue to only be active if all fields are populated
+I restructured the dashboard for ease of change.
+Now I've created dummy data to allow for autopopulating on load.
+The page autopopulates on load. It was fairly simple to set up, with minimal work in the python index function. But now my pre-existing scripts are generating very strange results. When I create a new category, it produces two cards, then 4, then 8, then 16! But this was easily fixed by using the jquery .hasClass() method to replace a troublesome for loop.
+I've now got the python queries all set up to populate the page with existing data and to fully update the dashboard.
+Now I need to attached events to the content generated on load. And then I can install the APIs. Then, I'm done?
 Next up:
-1. finish the dashboard operations
-2. fix the create item div so that the create button is only active once all fields are populated
+1. DONE - finish the dashboard operations
+2. DONE - fix the create item div so that the create button is only active once all fields are populated
 3. DONE - event handlers for deleting categories
-4. event handlers for include exclude of items
-5. DONE - inputs for include exclude of categories
-6. event handlers for include exclude of categories
-7. database connections for all
-8. set up page to auto populate categories and items from the database
+4. DONE - inputs for include exclude of categories
+5. DONE - event handlers for include exclude of items
+6. DONE - event handlers for include exclude of categories
+7. DONE - set up page to auto populate categories and items from the database
+8. ensure necessary event listeners are attached to all...
+9. Items: 
+    a. on exclude all text goes gray
+    b. all inputs disabled
+    c. add an update button in a column before delete
+    d. on 'update' click, activate inputs and replace button with submit/cancel button group
+    e. on submit, change record
+10. database connections for all
+activate all event listeners (may have to do through template loops applying script blocks in html)
+    a. target weight update
+    b. category deletes
+    c. item deletes
+    d. include/exclude updates
+    e. create new item button activation for preloaded categories
+    f. send new item to db, (updates with js to avoid page reloads)
