@@ -12,5 +12,6 @@ urlpatterns = [
     path('return_visitor', views.return_visitor, name="return_visitor"),
     path('update_item', views.update_item, name="update_item"),
     path('delete_item', views.delete_item, name="delete_item"),
-    path('delete_category', views.delete_category, name="delete_category")
+    path('delete_category', views.delete_category, name="delete_category"),
+    path('include', views.include, name="include")
 ]

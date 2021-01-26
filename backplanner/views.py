@@ -154,3 +154,17 @@ def delete_category(request):
     return JsonResponse({
         "success": "category deleted",
     }, status=201)
+
+@csrf_exempt
+@login_required
+def include(request):
+    user = request.user
+    data = json.loads(request.body)
+    include = data['include']
+    if data['item']:
+        record = Item.objects.filter(user = user, category = data['category'], item = data['item']).update(include = data['include'])
+    else: 
+        record = Item.objects.filter(user = user, category = data['category']).update(include = data['include'])
+    return JsonResponse({
+        "success": "inclusion updated.",
+    }, status=201)

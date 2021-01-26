@@ -109,7 +109,7 @@
     {% for cats in categories %}
     <div class="category card mt-1" id="{{ cats }}">
         <div class="card-header d-flex justify-content-between" style="background-color: gold;">
-            <span class="h4"><input type="checkbox" class="include-{{ cats }}" checked>  {{ cats|capfirst }}</span>
+            <span class="h4"><input type="checkbox" class="include-{{ cats }}" name="include-category" checked>  {{ cats|capfirst }}</span>
             <i class="bi bi-x-square ml-1 {{ cats }}-cat-delete h4"></i>
         </div>
         <div class="card-body">
@@ -124,12 +124,12 @@
                         <th>Manage</th>
                     </tr>
                 </thead>
-                <tbody class="{{ cats }} tbod">
+                <tbody class="{{ cats }}">
                     {% for its in items %}
                     {% if its.category == cats %}
                     <tr class="{{ its.item }}">
                         <td>
-                            <input type="checkbox" name="include" class="include-item include-{{ its.category }}-{{ its.item }}" checked>
+                            <input type="checkbox" name="include-item" class="include-item include-{{ its.category }}-{{ its.item }}" {% if its.include %}checked{% endif %}>
                         </td>
                         <td>
                             <input type="text" name="item" class="items item" value="{{ its.item|capfirst }}" disabled>
@@ -167,9 +167,9 @@
                     <span>Weight: </span>
                     <input type="text" min="0" size="5" name="weight" class="{{ cats }}-weight">
                     <span>Units: </span>
-                    <input type="radio" name="units" id="{{ cats }}-grams" value="grams" checked>
+                    <input type="radio" name="units" id="{{ cats }}-grams" value="grams" {% if user.units == "grams" %}checked {% endif %}>
                     <label for="{{ cats }}-grams"> g</label>
-                    <input type="radio" name="units" id="{{ cats }}-ounces" value="ounces">
+                    <input type="radio" name="units" id="{{ cats }}-ounces" value="ounces" {% if user.units == "ounces" %}checked {% endif %}>
                     <label for="{{ cats }}-ounces"> oz</label>
                 </div>
                 <input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm" id="{{ cats }}-item-submit" disabled>

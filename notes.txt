@@ -25,6 +25,14 @@ I've built db connections for updating target weight and how it works collapse.
 After a long fight with the fetch method and the associated python function I have established the ability to create new items and add them to the db!
 Delete Categories and Delete Items are now operational
 The update item functionality is nearly complete. The one thing I missed was checking for a weight change and adjusting the other weight. I'll come back to this. But the update item functionality looks really good.
+Logging in I see several problems:
+    For some reason newly created items are being created twice, 
+    and the item isn't capitalizing
+These issues have been fixed and resulted from me building a duplicate submit event, though the new one was 25% shorter than the old so I kept it.
+Added a feature where all new item units are based on the target weight unit.
+Updated the dashboard update function to not require parameters and to update both tables every time it's called.
+Now I am building in the functionality to see if an item should be included. And that is done, so now items can be excluded and have that state persist, but categories can only be excluded in session. I would have to create an additional model to provide persistent category inclusion.
+
 
 Next up:
 1. DONE - finish the dashboard operations
@@ -36,7 +44,7 @@ Next up:
 7. DONE - set up page to auto populate categories and items from the database
 8. DONE - ensure necessary event listeners are attached to all...
 9. Items: 
-    a. on exclude all text goes gray
+    a. CANCEL - on exclude all text goes gray
     b. DONE - all inputs disabled
     c. DONE - add an update button in a column before delete
     d. DONE - on 'update' click, activate inputs and replace button with submit/cancel button group
@@ -46,9 +54,10 @@ activate all event listeners (may have to do through template loops applying scr
     a. DONE - target weight update
     b. DONE - category deletes
     c. DONE - item deletes
-    d. include/exclude updates
+    d. DONE - include/exclude updates
     e. DONE - create new item button activation for preloaded categories
     f. DONE - send new item to db, (updates with js to avoid page reloads)
     g. DONE - item updates with button functionalities
     h. when item weights are updated, adjust the other weight
 11. DONE - checkbox in how it works to have it load collapsed
+12. DONE - Set 'create new item' units based on the selected target weight units.

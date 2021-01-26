@@ -28,41 +28,73 @@ window.onload = function() {
     });
 
     // Updates the totals table (dashboard)
-    let dashboardUpdate = (catName, object) => {
-        if (catName !== undefined) {
-            let $dashCount = parseInt($(`.${catName} .dash-count`).html(), 10);
-            $(`.${catName} .dash-count`).html($dashCount + object.quantity);
-            // category total grams
-            let $dashGrams = parseInt($(`.${catName} .dash-grams`).html(), 10);
-            let amountG = object.grams * object.quantity;
-            $(`.${catName} .dash-grams`).html(round(amountG + $dashGrams, 1));
-            // category total ounces
-            let $dashOz = parseInt($(`.${catName} .dash-oz`).html(), 10);
-            let amountOz = object.ounces * object.quantity;
-            $(`.${catName} .dash-oz`).html(round(amountOz + $dashOz,1));
-        }
-        // Update Totals Table
-        let target = parseFloat(document.querySelector('#targetWeight').value);
-        let weightsG = 0;
-        document.querySelectorAll('.dash-grams').forEach((item)=>{
-            weightsG += parseFloat(item.innerText);
+    let dashboardUpdate = () => {
+        /* Update Subtotals Table */
+        /* Extract all category names */
+        let categories = [];
+        $('div.category').each(function() {
+            categories.push(this.id.toLowerCase());
         });
-        let weightsOz = 0;
-        document.querySelectorAll('.dash-oz').forEach((item)=>{
-            weightsOz += parseFloat(item.innerText);
+        let $inclCatArr = [];
+        $('input[name="include-category"]').each(function(i,item) {
+            $inclCatArr.push($(item).is(':checked'));
         });
-        let items = 0;
-        document.querySelectorAll('.dash-count').forEach((item)=>{
-            items += parseInt(item.innerText);
+        let $totalCt = 0; 
+        let $totalG = 0; 
+        let $totalOz = 0;
+        $(categories).each(function(i, cat) {
+            let $count = 0;
+            let $gram = 0;
+            let $oz = 0;
+            if ( $inclCatArr[i] === true ) {
+                let $ctArr = [];
+                let $inclArr = [];
+                $(`tbody.${cat} input[name="include-item"]`).each(function(i, item) {
+                    $inclArr.push($(item).is(':checked'));
+                });
+                $(`tbody.${cat} input[name="quantity"]`).each(function(i, item) {
+                    if ($inclArr[i] === true) {
+                        $count += parseInt($(item).val());
+                    }
+                    $ctArr.push(parseInt($(item).val()));              
+                });
+                $(`tbody.${cat} input[name="grams"]`).each(function(i, item) {
+                    if ($inclArr[i] === true) {
+                        $gram += parseFloat($(item).val()) * $ctArr[i];
+                    }
+                });
+                $(`tbody.${cat} input[name="ounces"]`).each(function(i, item) {
+                    if ($inclArr[i] === true) {
+                        $oz += parseFloat($(item).val()) * $ctArr[i];
+                    }
+                });
+            }
+            $totalCt += $count;
+            $totalG += $gram;
+            $totalOz += $oz;
+            /* Update the subtotal table category row
+            /* Update the row count */
+            $(`.${cat} .dash-count`).html($count);
+            /* Update the row ounces */
+            $(`.${cat} .dash-oz`).html(round($oz,1));
+            /* Update the row grams */
+            $(`.${cat} .dash-grams`).html(round($gram, 1));
         });
-
+        /* Update the Totals Table */
+        let $target = $('#targetWeight').val();
+        /* Update total pack weight and total items */
+        $('#total-g').text(round($totalG,1));
+        $('#total-oz').text(round($totalOz, 1));
+        $('#total-item').text($totalCt);
+        /* Update the pack weight variance */
         if ($('input[name="targetUnits"]:checked').val() === "grams") {
-            $('#var-g').text(round(target - weightsG, 1) || 0);
-            $('#var-oz').text(round((target * 0.035274) - weightsOz, 1) || 0);
+            $('#var-g').text(round($target - $totalG, 1) || 0);
+            $('#var-oz').text(round(($target * 0.035274) - $totalOz, 1) || 0);
         } else {
-            $('#var-g').text(round((target * 28.34) - weightsG, 1) || 0);
-            $('#var-oz').text(round(target - weightsOz, 1) || 0);
+            $('#var-g').text(round(($target * 28.34) - $totalG, 1) || 0);
+            $('#var-oz').text(round($target - $totalOz, 1) || 0);
         }
+        /* Change Variance Value color relative to zero */
         if ($('#var-g').val() < 0) {
             $('#var-g').css('color','red');
             $('#var-oz').css('color','red');
@@ -70,9 +102,6 @@ window.onload = function() {
             $('#var-g').css('color','black');
             $('#var-oz').css('color','black');
         }
-        $('#total-g').text(round(weightsG,1));
-        $('#total-oz').text(round(weightsOz, 1));
-        $('#total-item').text(items);
     }
     dashboardUpdate();
 
@@ -89,6 +118,15 @@ window.onload = function() {
         
         // retrieve unit value
         let unit = $('input[name="targetUnits"]:checked').val() === "grams" ? "grams" : "ounces";
+
+        // base all 'new item' units on target weight unit
+        $('input[name="units"]').each(function() {
+            if ($(this).val() === unit) {
+                $(this).prop('checked', true);
+            } else {
+                $(this).prop('checked', false);
+            }
+        });
 
         // Send data to python function
         fetch('/total_weight', {
@@ -111,14 +149,22 @@ window.onload = function() {
         }
     });    
 
-    // Include exclude functionality for items in categories
+    // Functionality within categories
     $('.category').each(function(i, cat) {
         $(this).find('.include-item').each(function() {
-            $(this).on('change', () => {
-                alert('I want to be left out!');
+            $(this).on('change', function() {
+                fetch('/include', {
+                    method: "PUT",
+                    body: JSON.stringify({
+                        include: $(this).is(':checked'),
+                        category: $(this).closest('tbody').attr('class'),
+                        item: $(this).closest('tr').attr('class'),
+                    })
+                });
+                dashboardUpdate();
             });
-            // TODO include/exclude item
         });
+
         // Activate the item delete button
         $(this).find('.delete-item').each(function(i, item) {
             $(this).on('click', function() {
@@ -138,8 +184,8 @@ window.onload = function() {
                         $(this).closest('tr').slideUp('slow', function() {
                             $(this).remove();
                         });
+                        dashboardUpdate();
                     }
-// TODO - tables need to update
                 } else if (this.innerText === "Cancel") {
                     let $inputs = $($(`.${$(this).closest('tr').attr('class')}`)[0]).find(':input[type=text],:input[type=number]');
                     // Revert to original buttons
@@ -149,13 +195,16 @@ window.onload = function() {
                         $(item).prop('disabled',true).css('border', 'none');
                     });
                 }
-                
             });
         });
         // Activate the item update button
         $(this).find('.update-item').each(function() {
+            let $oldItem = $($(`.${$(this).closest('tr').attr('class')}`)[0]).find(':input[type=text]').val().toLowerCase();
+            let $oldValues = {};
+            $(this).closest('tr').find('.items').each(function(i, item) {
+                $oldValues[$(item).attr("name")] = $(item).val().toLowerCase();
+            });
             $(this).on('click', function() {
-                let $oldItem = $($(`.${$(this).closest('tr').attr('class')}`)[0]).find(':input[type=text]').val().toLowerCase();
                 let $inputs = $($(`.${$(this).closest('tr').attr('class')}`)[0]).find(':input[type=text],:input[type=number]');
                 if (this.innerText === "Update") {
                     $($inputs).each(function(i, item) {
@@ -164,6 +213,20 @@ window.onload = function() {
                     $(this).removeClass('btn-outline-secondary').addClass('btn-warning').text("Submit");
                     $(this).next().removeClass('btn-outline-secondary').addClass('btn-danger').text("Cancel");
                 } else if (this.innerText === "Submit") {
+                    $($inputs).each(function(i, item) {
+                        let field = $(item).attr("name");
+                        let value = $(item).val().toLowerCase();
+                        if (field === "grams") {
+                            if (parseFloat($oldValues.grams) !== parseFloat(value)) {
+                                $($($(`.${$(this).closest('tr').attr('class')}`)[0]).find('[name="ounces"]')[0]).val(round(parseFloat(value) * 0.035274,1));
+                            }
+                        }
+                        if (field === "ounces") {
+                            if (parseFloat($oldValues.ounces) !== parseFloat(value)) {
+                                $($($(`.${$(this).closest('tr').attr('class')}`)[0]).find('[name="grams"]')[0]).val(round(parseFloat(value) * 28.35,1));
+                            }
+                        }
+                    });
 // TODO - create an object of old input values, then use this to compare against the new values. If a weight has changed then the other one needs to be adjusted.
                     // Fetch to send updated values to db
                     let $values = {
@@ -178,7 +241,6 @@ window.onload = function() {
                             $values[$(item).attr("name")] = parseFloat($(item).val());
                         }
                     });
-                    console.log($values);
                     fetch('/update_item', {
                         method: 'POST',
                         body: JSON.stringify($values)
@@ -188,7 +250,7 @@ window.onload = function() {
                         console.log(result);
                     });          
 
-                    dashboardUpdate($oldItem, $values);
+                    dashboardUpdate();
                     // Revert to original buttons
                     $(this).removeClass('btn-warning').addClass('btn-outline-secondary').text("Update");
                     $(this).next().removeClass('btn-danger').addClass('btn-outline-secondary').text("Delete");
@@ -196,32 +258,6 @@ window.onload = function() {
                         $(item).prop('disabled',true).css('border', 'none');
                     });
                 }
-                
-                
-
-            });
-            // TODO update item
-        });
-
-        $(`#${cat.id}-item-submit`).on('click', (e) => {
-            e.preventDefault();
-            let data = new FormData($(`form.${cat.id}-item-generator`)[0]);
-            let stuff = {
-                include: true,
-                category: cat.id,
-                item: data.get('item'),
-                quantity: parseInt(data.get('quantity')),
-            }
-            if (data.get('units') === "ounces") {
-                stuff.ounces = round(parseFloat(data.get('weight')),1);
-                stuff.grams = round(data.get('weight') * 28.35, 1);
-            } else {
-                stuff.ounces = round(data.get('weight') * 0.035274, 1);
-                stuff.grams = round(parseFloat(data.get('weight')),1);
-            }
-            fetch('/new_item', {
-                method: 'POST',
-                body: JSON.stringify(stuff)
             });
         });
 
@@ -253,9 +289,27 @@ window.onload = function() {
         });
 
         // Category Include/Exclude Listener
-        $(`.include-${category}`).on('change', () => {
-            console.log(`${category} should be included or excluded.`);
-            // Needs to be built out.
+        $(`.include-${category}`).on('change', function() {
+            // fetch('/include', {
+            //     method: "PUT",
+            //     body: JSON.stringify({
+            //         include: $(this).is(':checked'),
+            //         category: category,
+            //         item: false,
+            //     })
+            // });
+            if ( $(this).is(':checked') ) {
+                $(this).closest('.category').find('input[name="include-item"]').each(function(i, item) {
+                    console.log(item);
+                    $(item).attr('disabled', false);
+                });
+            } else {
+                $(this).closest('.category').find('input[name="include-item"]').each(function(i, item) {
+                    console.log(item);
+                    $(item).attr('disabled', true);
+                });
+            }
+            dashboardUpdate();
         });
 
         // New item submit button only when all fields populated
@@ -268,34 +322,24 @@ window.onload = function() {
         // Add new item on submit; update dashboard; send values to db; add more event listeners
         $(`#${category}-item-submit`).on('click', (e) => {
             e.preventDefault();
-            
-            // Build object to send with API
-            let x = $(`form.${category}-item-generator`).serializeArray();
+            let data = new FormData($(`form.${category}-item-generator`)[0]);
             let record = {
                 include: true,
                 category: category,
-            };  
-
-            // populate grams and ounces
-            if (x[3].value === "ounces") {
-                record.ounces = round(parseFloat(x[2].value),1);
-                record.grams = round(x[2].value * 28.35, 1);
-            } else if (x[3].value === "grams") {
-                record.grams = round(parseFloat(x[2].value),1);
-                record.ounces = round(x[2].value * 0.035274, 1);
+                item: data.get('item').toLowerCase(),
+                quantity: parseInt(data.get('quantity')),
             }
-            // populate remaining fields from form inputs
-            x.forEach((item) => {
-                if (item.name === "units" || item.name === "weight") {
-                    return;
-                }
-                if (item.name === "quantity") {
-                    record[item.name] = parseInt(item.value);
-                    return;
-                }
-                record[item.name] = item.value;
+            if (data.get('units') === "ounces") {
+                record.ounces = round(parseFloat(data.get('weight')),1);
+                record.grams = round(data.get('weight') * 28.35, 1);
+            } else {
+                record.ounces = round(data.get('weight') * 0.035274, 1);
+                record.grams = round(parseFloat(data.get('weight')),1);
+            }
+            fetch('/new_item', {
+                method: 'POST',
+                body: JSON.stringify(record)
             });
-            // end building object
 
             // reset form fields
             $(`form.${category}-item-generator`).trigger("reset");
@@ -303,16 +347,11 @@ window.onload = function() {
             // deactivate the create button
             $(`#${category}-item-submit`).prop("disabled", true);
             
-            // send record to the db
-            fetch('/new_item', {
-                method: 'POST',
-                body: JSON.stringify(record)
-            });
-            
+            let newDisplay = record.item.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
             // insert new table row with values
             let $newRow = `<tr class="${record.item}">
-                <td><input type="checkbox" name="include" class="include-item include-${category}-${record.item}" checked></td>
-                <td><input type="text" name="item" class="items item" value="${record.item}" disabled></td>
+                <td><input type="checkbox" name="include-item" class="include-item include-${category}-${record.item}" checked></td>
+                <td><input type="text" name="item" class="items item" value="${newDisplay}" disabled></td>
                 <td><input type="number" name="quantity" class="items quantity" value="${record.quantity}" disabled></td>
                 <td><input type="number" name="grams" class="items grams" value="${record.grams}" disabled></td>
                 <td><input type="number" name="ounces" class="items ounces" value="${record.ounces}" disabled></td>
@@ -324,13 +363,21 @@ window.onload = function() {
             $($newRow).hide().appendTo(`tbody.${category}`).fadeIn('slow');
 
             // update dashboard values
-            dashboardUpdate(category, record);
+            dashboardUpdate();
 
             // Activate the item include button
-            $(`.include-${category}-${record.item}`).on('change', () => {
-                alert('I want to be left out!');
-            })
-            
+            $(`.include-${category}-${record.item}`).on('change', function() {
+                fetch('/include', {
+                    method: "PUT",
+                    body: JSON.stringify({
+                        include: $(this).is(':checked'),
+                        category: category,
+                        item: record.item,
+                    })
+                });
+                dashboardUpdate();
+            });
+
             // Activate the item delete button
             $(`#${category}-${record.item}-delete`).on('click', function() {
                 if (confirm(`Are you sure you want to delete ${record.item} from ${category}?`)) {
@@ -344,6 +391,7 @@ window.onload = function() {
                     $(this).closest('tr').slideUp('slow', function() {
                         $(this).remove();
                     });
+                    dashboardUpdate();
                 }
             });
         });
@@ -371,7 +419,7 @@ window.onload = function() {
         let $display = name.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
         let $name = name.toLowerCase();
 
-        let $node = `<div class="category ${$name}-category card mt-1" id="${$name}"><div class="card-header d-flex justify-content-between" style="background-color: gold;"><span class="h4"><input type="checkbox" class="include-${$name}" checked>  ${$display}</span><i class="bi bi-x-square ml-1 ${$name}-cat-delete h4"></i></div><div class="card-body"><table class="table table-hover table-sm"><thead><tr><th>Include</th><th>Item Description</th><th>QTY</th><th>Grams</th><th>Ounces</th><th>Manage</th></tr></thead><tbody class="${$name} tbod"></tbody></table><form class="${$name}-item-generator d-flex justify-content-center p-1 border rounded"><div class="mr-1"><span>Create A New Item: </span><input type="text" name="item" class="${$name}-desc" autofocus></div><div class="mr-1"><span>Quantity: </span><input type="text" name="quantity" size="3" class="${$name}-qty"></div><div class="mr-1"><span>Weight: </span><input type="text" min="0" size="5" name="weight" class="${$name}-weight"><span>Units: </span><input type="radio" name="units" id="${$name}-grams" value="grams" checked><label for="${$name}-grams"> g</label><input type="radio" name="units" id="${$name}-ounces" value="ounces"><label for="${$name}-ounces"> oz</label></div><input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm" id="${$name}-item-submit" disabled></form></div></div>`;
+        let $node = `<div class="category ${$name}-category card mt-1" id="${$name}"><div class="card-header d-flex justify-content-between" style="background-color: gold;"><span class="h4"><input type="checkbox" class="include-${$name}" name="include-category" checked>  ${$display}</span><i class="bi bi-x-square ml-1 ${$name}-cat-delete h4"></i></div><div class="card-body"><table class="table table-hover table-sm"><thead><tr><th>Include</th><th>Item Description</th><th>QTY</th><th>Grams</th><th>Ounces</th><th>Manage</th></tr></thead><tbody class="${$name}"></tbody></table><form class="${$name}-item-generator d-flex justify-content-center p-1 border rounded"><div class="mr-1"><span>Create A New Item: </span><input type="text" name="item" class="${$name}-desc" autofocus></div><div class="mr-1"><span>Quantity: </span><input type="text" name="quantity" size="3" class="${$name}-qty"></div><div class="mr-1"><span>Weight: </span><input type="text" min="0" size="5" name="weight" class="${$name}-weight"><span>Units: </span><input type="radio" name="units" id="${$name}-grams" value="grams" ${$('input[name="targetUnits"]:checked').val() === "grams" ? "checked" : ""}checked><label for="${$name}-grams"> g</label><input type="radio" name="units" id="${$name}-ounces" value="ounces" ${$('input[name="targetUnits"]:checked').val() === "ounces" ? "checked" : ""}><label for="${$name}-ounces"> oz</label></div><input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm" id="${$name}-item-submit" disabled></form></div></div>`;
 
         // Animate new category
         $($node).hide().insertBefore('#category-generator').slideDown('slow');
