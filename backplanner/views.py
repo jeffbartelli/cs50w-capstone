@@ -80,7 +80,19 @@ def register(request):
 @csrf_exempt
 @login_required
 def new_item(request):
-    pass
+    data = json.loads(request.body)
+    item = Item()
+    item.user = request.user
+    item.quantity = data['quantity']
+    item.category = data['category']
+    item.item = data['item']
+    item.grams = data['grams']
+    item.ounces = data['ounces']
+    item.include = data['include']
+    item.save()
+    return JsonResponse({
+        "success": "new item added",
+    }, status=201)
 
 @csrf_exempt
 @login_required
@@ -100,3 +112,45 @@ def return_visitor(request):
     user.visited = data["visited"]
     user.save()
     return HttpResponse(status=204)
+
+@csrf_exempt
+@login_required
+def update_item(request):
+    user = request.user
+    data = json.loads(request.body)
+    category = data['category']
+    item = data['oldItem']
+    item = Item.objects.get(user = user, category = category, item = item)
+    item.user = request.user
+    item.item = data['item']
+    item.quantity = data['quantity']
+    item.grams = data['grams']
+    item.ounces = data['ounces']
+    item.include = data['include']
+    item.save()
+    return JsonResponse({
+        "success": "item updated successfully.",
+    }, status=201)
+
+@csrf_exempt
+@login_required
+def delete_item(request):
+    user = request.user
+    data = json.loads(request.body)
+    cat = data['category']
+    it = data['item']
+    item = Item.objects.filter(category = cat, item = it, user = user).delete()
+    return JsonResponse({
+        "success": "success"
+    }, status=201)
+
+@csrf_exempt
+@login_required
+def delete_category(request):
+    user = request.user
+    data = json.loads(request.body)
+    deleter = data['category']
+    category = Item.objects.filter(category = deleter, user = user).delete()
+    return JsonResponse({
+        "success": "category deleted",
+    }, status=201)

@@ -22,7 +22,9 @@ I've now got the python queries all set up to populate the page with existing da
 Now I need to attached events to the content generated on load. And then I can install the APIs. Then, I'm done?
 I went through the process of attaching event listeners to everything, as well as replacing the item delete icon with a button group that has an update and delete button. The plan being that when update is clicked, the fields will become active for edits and the button names will change to save and cancel.
 I've built db connections for updating target weight and how it works collapse.
-
+After a long fight with the fetch method and the associated python function I have established the ability to create new items and add them to the db!
+Delete Categories and Delete Items are now operational
+The update item functionality is nearly complete. The one thing I missed was checking for a weight change and adjusting the other weight. I'll come back to this. But the update item functionality looks really good.
 
 Next up:
 1. DONE - finish the dashboard operations
@@ -37,15 +39,16 @@ Next up:
     a. on exclude all text goes gray
     b. DONE - all inputs disabled
     c. DONE - add an update button in a column before delete
-    d. on 'update' click, activate inputs and replace button with submit/cancel button group
-    e. on submit, change record (PUT) [line 201]
+    d. DONE - on 'update' click, activate inputs and replace button with submit/cancel button group
+    e. DONE - on submit, change record (PUT) [line 201]
 10. database connections for all
 activate all event listeners (may have to do through template loops applying script blocks in html)
     a. DONE - target weight update
-    b. category deletes
-    c. item deletes
+    b. DONE - category deletes
+    c. DONE - item deletes
     d. include/exclude updates
     e. DONE - create new item button activation for preloaded categories
-    f. send new item to db, (updates with js to avoid page reloads)
-    g. item updates with button functionalities
+    f. DONE - send new item to db, (updates with js to avoid page reloads)
+    g. DONE - item updates with button functionalities
+    h. when item weights are updated, adjust the other weight
 11. DONE - checkbox in how it works to have it load collapsed

@@ -6,6 +6,7 @@ window.onload = function() {
         return Math.round(value * multiplier) / multiplier;
     }
 
+    // Update the visited value in the 'How it works' section for an authenticated user
     $('#confirmCollapse').on('change', ()=>{
         let visitor = $('input#confirmCollapse').is(':checked') ? true : false;
         fetch('/return_visitor', {
@@ -16,13 +17,31 @@ window.onload = function() {
         });
     });
 
-    // Updates the dashboard tables
-    let dashboardUpdate = () => {
-        // Update Total Table
-        let categorySubsG = 0;
-        $('.grams').each((item)=>{
-            categorySubsG += parseFloat(item.text);
-        });
+    // Expand the how it works section
+    $('#howItWorksExpand').on('click', (e)=>{
+        let $unit = $('#howItWorksExpand');
+        if ($unit.hasClass('bi-arrow-down-square')) {
+            $unit.removeClass('bi-arrow-down-square').addClass('bi-arrow-up-square');
+        } else {
+            $unit.removeClass('bi-arrow-up-square').addClass('bi-arrow-down-square'); 
+        }
+    });
+
+    // Updates the totals table (dashboard)
+    let dashboardUpdate = (catName, object) => {
+        if (catName !== undefined) {
+            let $dashCount = parseInt($(`.${catName} .dash-count`).html(), 10);
+            $(`.${catName} .dash-count`).html($dashCount + object.quantity);
+            // category total grams
+            let $dashGrams = parseInt($(`.${catName} .dash-grams`).html(), 10);
+            let amountG = object.grams * object.quantity;
+            $(`.${catName} .dash-grams`).html(round(amountG + $dashGrams, 1));
+            // category total ounces
+            let $dashOz = parseInt($(`.${catName} .dash-oz`).html(), 10);
+            let amountOz = object.ounces * object.quantity;
+            $(`.${catName} .dash-oz`).html(round(amountOz + $dashOz,1));
+        }
+        // Update Totals Table
         let target = parseFloat(document.querySelector('#targetWeight').value);
         let weightsG = 0;
         document.querySelectorAll('.dash-grams').forEach((item)=>{
@@ -54,20 +73,8 @@ window.onload = function() {
         $('#total-g').text(round(weightsG,1));
         $('#total-oz').text(round(weightsOz, 1));
         $('#total-item').text(items);
-        // Update Subcategories Table
-        // TODO
     }
     dashboardUpdate();
-
-    // Expand the how it works section
-    $('#howItWorksExpand').on('click', (e)=>{
-        let $unit = $('#howItWorksExpand');
-        if ($unit.hasClass('bi-arrow-down-square')) {
-            $unit.removeClass('bi-arrow-down-square').addClass('bi-arrow-up-square');
-        } else {
-            $unit.removeClass('bi-arrow-up-square').addClass('bi-arrow-down-square'); 
-        }
-    });
 
     // Update Target Weight
     $('#update-weight').on('click', (e) => {
@@ -104,6 +111,7 @@ window.onload = function() {
         }
     });    
 
+    // Include exclude functionality for items in categories
     $('.category').each(function(i, cat) {
         $(this).find('.include-item').each(function() {
             $(this).on('change', () => {
@@ -113,23 +121,111 @@ window.onload = function() {
         });
         // Activate the item delete button
         $(this).find('.delete-item').each(function(i, item) {
-            $(this).on('click', () => {
-                if (confirm(`Are you sure you want to delete ${$(item).closest('tr').attr('class')} from ${cat.id}?`)) {
-                    console.log('need to delete the <tr>, and delete the record from the db.');
-                    // TODO delete item
-                } else {
-                    console.log('do nothing');
+            $(this).on('click', function() {
+                if (this.innerText === "Delete") {
+                    if (confirm(`Are you sure you want to delete ${$(item).closest('tr').attr('class')} from ${cat.id}?`)) {
+                        fetch('/delete_item', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                category: cat.id,
+                                item: $(item).closest('tr').attr('class')
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(result => {
+                            console.log(result);
+                        });
+                        $(this).closest('tr').slideUp('slow', function() {
+                            $(this).remove();
+                        });
+                    }
+// TODO - tables need to update
+                } else if (this.innerText === "Cancel") {
+                    let $inputs = $($(`.${$(this).closest('tr').attr('class')}`)[0]).find(':input[type=text],:input[type=number]');
+                    // Revert to original buttons
+                    $(this).removeClass('btn-danger').addClass('btn-outline-secondary').text("Delete");
+                    $(this).prev().removeClass('btn-warning').addClass('btn-outline-secondary').text("Update");
+                    $($inputs).each(function(i, item) {
+                        $(item).prop('disabled',true).css('border', 'none');
+                    });
                 }
+                
             });
         });
         // Activate the item update button
         $(this).find('.update-item').each(function() {
-            $(this).on('click', () => {
-                alert('update this item.');
+            $(this).on('click', function() {
+                let $oldItem = $($(`.${$(this).closest('tr').attr('class')}`)[0]).find(':input[type=text]').val().toLowerCase();
+                let $inputs = $($(`.${$(this).closest('tr').attr('class')}`)[0]).find(':input[type=text],:input[type=number]');
+                if (this.innerText === "Update") {
+                    $($inputs).each(function(i, item) {
+                        $(item).prop('disabled',false).css({'border-color': "goldenrod", "border-weight": "1px", "border-style": "solid"});
+                    });
+                    $(this).removeClass('btn-outline-secondary').addClass('btn-warning').text("Submit");
+                    $(this).next().removeClass('btn-outline-secondary').addClass('btn-danger').text("Cancel");
+                } else if (this.innerText === "Submit") {
+// TODO - create an object of old input values, then use this to compare against the new values. If a weight has changed then the other one needs to be adjusted.
+                    // Fetch to send updated values to db
+                    let $values = {
+                        oldItem: $oldItem,
+                        include: true,
+                        category: $(this).closest('div.category').attr('id'),
+                    };
+                    $($inputs).each(function(i, item) {
+                        if ($(item).attr('type') === "text") {
+                            $values[$(item).attr("name")] = $(item).val().toLowerCase();
+                        } else {
+                            $values[$(item).attr("name")] = parseFloat($(item).val());
+                        }
+                    });
+                    console.log($values);
+                    fetch('/update_item', {
+                        method: 'POST',
+                        body: JSON.stringify($values)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        console.log(result);
+                    });          
+
+                    dashboardUpdate($oldItem, $values);
+                    // Revert to original buttons
+                    $(this).removeClass('btn-warning').addClass('btn-outline-secondary').text("Update");
+                    $(this).next().removeClass('btn-danger').addClass('btn-outline-secondary').text("Delete");
+                    $($inputs).each(function(i, item) {
+                        $(item).prop('disabled',true).css('border', 'none');
+                    });
+                }
+                
+                
+
             });
             // TODO update item
         });
 
+        $(`#${cat.id}-item-submit`).on('click', (e) => {
+            e.preventDefault();
+            let data = new FormData($(`form.${cat.id}-item-generator`)[0]);
+            let stuff = {
+                include: true,
+                category: cat.id,
+                item: data.get('item'),
+                quantity: parseInt(data.get('quantity')),
+            }
+            if (data.get('units') === "ounces") {
+                stuff.ounces = round(parseFloat(data.get('weight')),1);
+                stuff.grams = round(data.get('weight') * 28.35, 1);
+            } else {
+                stuff.ounces = round(data.get('weight') * 0.035274, 1);
+                stuff.grams = round(parseFloat(data.get('weight')),1);
+            }
+            fetch('/new_item', {
+                method: 'POST',
+                body: JSON.stringify(stuff)
+            });
+        });
+
+        // Apply event listeners to categories
         let $name = this.id.toLowerCase();
         let $display = this.id.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
         catUtilities($name, $display);
@@ -138,11 +234,21 @@ window.onload = function() {
     function catUtilities(category, display) {
         // Category Delete Listener
         $(`.${category}-cat-delete`).mouseenter(()=>{$(`.${category}-cat-delete`).css('color','firebrick')}).mouseleave(()=>{$(`.${category}-cat-delete`).css('color','black')});
-        $(`.${category}-cat-delete`).on('click', (e) => {
+        $(`.${category}-cat-delete`).on('click', function(e) {
             if (confirm(`Are you sure you want to delete ${display} from your pack? All items will be lost.`)) {
-                console.log('delete the category from the page, and remove all items from db that match the category.');
-            } else {
-                console.log('do nothing');
+                fetch('/delete_category', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        category: category,
+                    })
+                });
+                $(this).closest('div.category').slideUp('slow', function() {
+                    $(this).remove();
+                });
+                $(`tr.${category}`).slideUp('slow', function() {
+                    $(this).remove();
+                });
+                dashboardUpdate();
             }
         });
 
@@ -198,7 +304,10 @@ window.onload = function() {
             $(`#${category}-item-submit`).prop("disabled", true);
             
             // send record to the db
-            
+            fetch('/new_item', {
+                method: 'POST',
+                body: JSON.stringify(record)
+            });
             
             // insert new table row with values
             let $newRow = `<tr class="${record.item}">
@@ -215,19 +324,7 @@ window.onload = function() {
             $($newRow).hide().appendTo(`tbody.${category}`).fadeIn('slow');
 
             // update dashboard values
-            // category item count
-            let $dashCount = parseInt($(`.${category} .dash-count`).html(), 10);
-            $(`.${category} .dash-count`).html($dashCount + record.quantity);
-            // category total grams
-            let $dashGrams = parseInt($(`.${category} .dash-grams`).html(), 10);
-            let amountG = record.grams * record.quantity;
-            $(`.${category} .dash-grams`).html(round(amountG + $dashGrams, 1));
-            // category total ounces
-            let $dashOz = parseInt($(`.${category} .dash-oz`).html(), 10);
-            let amountOz = record.ounces * record.quantity;
-            $(`.${category} .dash-oz`).html(round(amountOz + $dashOz,1));
-            // update totals table
-            dashboardUpdate();
+            dashboardUpdate(category, record);
 
             // Activate the item include button
             $(`.include-${category}-${record.item}`).on('change', () => {
@@ -235,24 +332,37 @@ window.onload = function() {
             })
             
             // Activate the item delete button
-            $(`#${category}-${record.item}-delete`).on('click', (e) => {
+            $(`#${category}-${record.item}-delete`).on('click', function() {
                 if (confirm(`Are you sure you want to delete ${record.item} from ${category}?`)) {
-                    console.log('need to delete the <tr>, and delete the record from the db.');
-                } else {
-                    console.log('do nothing');
+                    fetch('/delete_item', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            category: category,
+                            item: record.item
+                        })
+                    });
+                    $(this).closest('tr').slideUp('slow', function() {
+                        $(this).remove();
+                    });
                 }
             });
         });
     }
     
     // Creates the new category on submit.
-    $('#category-submit').on('click', ()=>{
+    $('#category-submit').on('click', function() {
         let $name = $('#create-category').val().toLowerCase();
         if ($('.category').hasClass(`${$name}-category`)) {
             alert('This category name already exists. Please select a different name.');
             $('#create-category').val('');
         } else {
             categoryGen($name);
+            $('body,html').animate(
+                {
+                    scrollTop: $(`#${$name}`).offset().top
+                },
+                800
+            );
         }
     });
 

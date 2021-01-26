@@ -182,48 +182,6 @@
         <input type="text" name="create-category" id="create-category" class="ml-2" placeholder="Category Name" style="border: 0;">
         <input type="submit" value="Create" id="category-submit" class="ml-1 btn btn-outline-secondary btn-sm" disabled>
     </div>
-
-    <div class="category-category-name card mt-1" hidden>
-        <div class="card-header d-flex justify-content-between" id="category-name">
-            <span class="h4">Category Name</span> 
-            <i class="bi bi-x-square ml-1 delete"></i>
-        </div>
-        <div class="card-body">
-            <table class="table table-hover table-sm">
-                <thead>
-                    <tr>
-                        <th>Include</th>
-                        <th>Item Description</th>
-                        <th>QTY</th>
-                        <th>Grams</th>
-                        <th>Ounces</th>
-                        <th>Delete</th>
-                    </tr>
-                </thead>
-                <tbody class="category-name tbod">
-                </tbody>
-            </table>
-            <form class="category-name item d-flex justify-content-center p-1 border rounded" style="background-color:gold">
-                <div class="mr-1">
-                    <span>Create A New Item: </span>
-                    <input type="text" class="category-name description" style="border: 0;">
-                </div>
-                <div class="mr-1">
-                    <span>Quantity: </span>
-                    <input type="text" class="category-name quantity" style="border: 0;" size="3">
-                </div>
-                <div class="mr-1">
-                    <span>Weight: </span>
-                    <input type="text" min="0" style="border: 0;" size="5">
-                    <span>Units: </span>
-                    <input type="radio" name="targetUnits" id="grams" value="grams" checked>
-                        <label for="grams">g</label>
-                    <input type="radio" name="targetUnits" id="ounces" value="ounces"><label for="ounces">oz</label>    
-                </div>
-                <input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm item-submit" disabled> 
-            </form>
-        </div>
-    </div>
 </div>
 {% endif %}
 {% endblock %}
