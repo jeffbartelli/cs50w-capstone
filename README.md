@@ -24,6 +24,8 @@
       - How to run this application
       - Any other information the staff should know about this project
 
+[Back to Top](#table-of-contents)
+
 ## How To Run This Application
 1. Copy the repo to your system.
 2. Using the command line, navigate to the folder that contains this repo.
@@ -34,12 +36,16 @@
 
 ~~Visit on Heroku~~
 
+[Back to Top](#table-of-contents)
+
 ## Backplanner Introduction
 Like many of the websites I've built in the past, Backplanner is based on a Google Sheets tool I built to record the weight of each item of camping gear I have, and to allow me to track what items I plan to carry with me on backpacking and bike touring trips. Ultimately the tool helps me to cut weight when necessary and to identify items that aren't worth the trouble to carry. Other people have used copies of that original tool and it was clear that it was a good candidate for my capstone project.
 
 Backplanner has a robust user interface built in HTML, leaning heavily on bootstrap for its formatting and javascript/jquery for its user interface. The Django templates allow for simple generation of content on page load, pulling data from the database through the view functions I wrote. Records are updated by using javascript's fetch() function to send data to Django for parsing and insertion into the database. *This use of Django on the back-end and javascript on the front-end meets the CS50w requirement*. While I have built on the lessons I learned in CS50w to complete this capstone project, *this website was built from the ground up and has little in common with any CS50w projects*.
 
 To the best of my knowledge I have not included any Python libraries or packages outside of the standard Python library. Therefore, *no requirements.txt file is required for this project*.
+
+[Back to Top](#table-of-contents)
 
 ## Backplanner Development Requirements
 - [x] Splash page
@@ -64,6 +70,8 @@ To the best of my knowledge I have not included any Python libraries or packages
 - [x] Item Manage Options - This includes the Update and Delete buttons displayed as a button group. Upon clicking update, the input fields within the item row are enabled, allowing the user to make changes to the fields. The buttons also change, to show "Submit" and "Cancel" options. Upon cancel, the item row inputs are again disabled. Upon Submit, the item row inputs are disabled, the updates are sent to the Django Item Model, and the dashboard tables are updated using the updateDashboard javascript function. When Delete is clicked, an alert window pops up asking for verification before deleting the item.
 - [x] **Create New Item** is a section located at the bottom of each category. It allows the agent to enter the necessary details for a new item. Once all fields are populated, the 'Create' button is enabled and the user can submit the new item. This is sent to the Item Model in Django.
 - [x] Django Models & Views have been created to handle all database actions triggered by agent interactions with the application. This includes POST and PUT calls and spans the creation of new records, the modification of records, and the deletion of records.
+
+[Back to Top](#table-of-contents)
 
 ## Backplanner Development Notes
 The content below is a distillation of the notes I kept as I was building this site. This will give a sense of sequence of actions I took to build the page, as well as notes on some of the challenges I faced.
@@ -93,6 +101,8 @@ The content below is a distillation of the notes I kept as I was building this s
 - Created the splash page
 - Addressed mobile responsiveness issues
 - Added position sticky to the dashboard so it's always visible
+
+[Back to Top](#table-of-contents)
 
 ## Backplanner Files
 Backplanner is a single page website (excluding the borrowed login.html and register.html files). The bulk of code is based in the script.js file, while the page layout is in index.html and the backend work in views.py. Some minor styling was done in styles.css, though most of the styling is based on bootstrap classes. The major components of each file are detailed below.
@@ -157,3 +167,5 @@ A collection of URL patterns. There is nothing extraordinary here. Nearly all pa
 There are two models supporting this application: User and Item. The User model is an extension of AbstractUser, but includes several additional fields. There is 'visited' which evolved to be a boolean to indicate if the user wants the "How It Works" section collapsed on login. 'Weight' represents the agent's target pack weight, and 'units' is the unit of measurement for the target weight.
 
 The Item model includes descriptive information about the items that agents add to their packs. It is linked to the User model, and also has a created field that records the datetime of creation.
+
+[Back to Top](#table-of-contents)
