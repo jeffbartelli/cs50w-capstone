@@ -11,6 +11,12 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .models import User, Item
 
+def splash(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect('/index')
+    else:
+        return render(request, "splash.html")
+
 def index(request):
     categories = Item.objects.filter(user=request.user.id).values_list('category', flat=True).distinct()
     items = Item.objects.filter(user=request.user.id)

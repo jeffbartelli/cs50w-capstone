@@ -10,30 +10,33 @@
     </head>
     <body>
 
-        <div class="container">
-            <nav class="navbar navbar-expand-lg navbar-light d-flex justify-content-between" style="background-color:gold">
-                <a class="navbar-brand" href="{% url 'index' %}">Backplanner</a>
-                <div>
-                    <ul class="navbar-nav">
-                        {% if user.is_authenticated %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="#"><strong>{{ user|capfirst }}</strong></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
-                            </li>
-                        {% else %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'login' %}">Log In</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'register' %}">Register</a>
-                            </li>
-                        {% endif %}
-                    </ul>
+            <nav class="navbar fixed-top navbar-expand-lg navbar-light">
+                <div class="container">
+                    <a class="navbar-brand" href="{% url 'index' %}"><i class="bi bi-compass"></i> Backplanner</a>
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ml-auto">
+                            {% if user.is_authenticated %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><strong>{{ user|capfirst }}</strong></a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{% url 'register' %}">Register</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
                 </div>
             </nav>
-        </div>
 
         <div class="body container">
             {% block body %}

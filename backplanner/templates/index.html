@@ -132,16 +132,16 @@
                             <input type="checkbox" name="include-item" class="include-item include-{{ its.category }}-{{ its.item }}" {% if its.include %}checked{% endif %}>
                         </td>
                         <td>
-                            <input type="text" name="item" class="items item" value="{{ its.item|capfirst }}" disabled>
+                            <input type="text" name="item" class="items item w-100" value="{{ its.item|capfirst }}" disabled>
                         </td>
                         <td>
-                            <input type="number" name="quantity" class="items quantity" value="{{ its.quantity }}" disabled>
+                            <input type="number" name="quantity" class="items quantity w-75" value="{{ its.quantity }}" disabled>
                         </td>
                         <td>
-                            <input type="number" name="grams" class="items grams" value="{{ its.grams }}" disabled>
+                            <input type="number" name="grams" class="items grams w-75" value="{{ its.grams }}" disabled>
                         </td>
                         <td>
-                            <input type="number" name="ounces" class="items ounces" value="{{ its.ounces }}" disabled>
+                            <input type="number" name="ounces" class="items ounces w-75" value="{{ its.ounces }}" disabled>
                         </td>
                         <td>
                             <div class="btn-group" role="group">
@@ -166,13 +166,19 @@
                 <div class="mr-1">
                     <span>Weight: </span>
                     <input type="text" min="0" size="5" name="weight" class="{{ cats }}-weight">
+                </div>
+                <div class="mr-1 d-flex flex-sm-wrap">
                     <span>Units: </span>
-                    <input type="radio" name="units" id="{{ cats }}-grams" value="grams" {% if user.units == "grams" %}checked {% endif %}>
-                    <label for="{{ cats }}-grams"> g</label>
+                    <span class="d-sm-flex justify-content-sm-start">
+                    <input type="radio" name="units" id="{{ cats }}-grams" class="ml-1" value="grams" {% if user.units == "grams" %}checked {% endif %}>
+                    <label for="{{ cats }}-grams" class="mr-1"> g</label>
                     <input type="radio" name="units" id="{{ cats }}-ounces" value="ounces" {% if user.units == "ounces" %}checked {% endif %}>
                     <label for="{{ cats }}-ounces"> oz</label>
+                    </span>
                 </div>
-                <input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm" id="{{ cats }}-item-submit" disabled>
+                <div class="d-flex align-items-center">
+                    <input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm" id="{{ cats }}-item-submit" disabled>
+                </div>
             </form>
         </div>
     </div>

@@ -350,14 +350,27 @@ window.onload = function() {
             let newDisplay = record.item.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
             // insert new table row with values
             let $newRow = `<tr class="${record.item}">
-                <td><input type="checkbox" name="include-item" class="include-item include-${category}-${record.item}" checked></td>
-                <td><input type="text" name="item" class="items item" value="${newDisplay}" disabled></td>
-                <td><input type="number" name="quantity" class="items quantity" value="${record.quantity}" disabled></td>
-                <td><input type="number" name="grams" class="items grams" value="${record.grams}" disabled></td>
-                <td><input type="number" name="ounces" class="items ounces" value="${record.ounces}" disabled></td>
-                <td><div class="btn-group" role="group">
-                <button class="btn btn-outline-secondary btn-sm update-item" type="button">Update</button>
-                <button class="btn btn-outline-secondary btn-sm delete-item" type="button" id="${category}-${record.item}-delete">Delete</button></div></td></tr>`;
+                <td>
+                    <input type="checkbox" name="include-item" class="include-item include-${category}-${record.item}" checked>
+                </td>
+                <td>
+                    <input type="text" name="item" class="items item w-100" value="${newDisplay}" disabled>
+                </td>
+                <td>
+                    <input type="number" name="quantity" class="items quantity w-75" value="${record.quantity}" disabled>
+                </td>
+                <td>
+                    <input type="number" name="grams" class="items grams w-75" value="${record.grams}" disabled>
+                </td>
+                <td>
+                    <input type="number" name="ounces" class="items ounces w-75" value="${record.ounces}" disabled>
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-secondary btn-sm update-item" type="button">Update</button>
+                        <button class="btn btn-outline-secondary btn-sm delete-item" type="button" id="${category}-${record.item}-delete">Delete</button>
+                    </div>
+                </td></tr>`;
             
             // Animate new row
             $($newRow).hide().appendTo(`tbody.${category}`).fadeIn('slow');
@@ -419,7 +432,56 @@ window.onload = function() {
         let $display = name.toLowerCase().split(' ').map((s) => s.charAt(0).toUpperCase() + s.substring(1)).join(' ');
         let $name = name.toLowerCase();
 
-        let $node = `<div class="category ${$name}-category card mt-1" id="${$name}"><div class="card-header d-flex justify-content-between" style="background-color: gold;"><span class="h4"><input type="checkbox" class="include-${$name}" name="include-category" checked>  ${$display}</span><i class="bi bi-x-square ml-1 ${$name}-cat-delete h4"></i></div><div class="card-body"><table class="table table-hover table-sm"><thead><tr><th>Include</th><th>Item Description</th><th>QTY</th><th>Grams</th><th>Ounces</th><th>Manage</th></tr></thead><tbody class="${$name}"></tbody></table><form class="${$name}-item-generator d-flex justify-content-center p-1 border rounded"><div class="mr-1"><span>Create A New Item: </span><input type="text" name="item" class="${$name}-desc" autofocus></div><div class="mr-1"><span>Quantity: </span><input type="text" name="quantity" size="3" class="${$name}-qty"></div><div class="mr-1"><span>Weight: </span><input type="text" min="0" size="5" name="weight" class="${$name}-weight"><span>Units: </span><input type="radio" name="units" id="${$name}-grams" value="grams" ${$('input[name="targetUnits"]:checked').val() === "grams" ? "checked" : ""}checked><label for="${$name}-grams"> g</label><input type="radio" name="units" id="${$name}-ounces" value="ounces" ${$('input[name="targetUnits"]:checked').val() === "ounces" ? "checked" : ""}><label for="${$name}-ounces"> oz</label></div><input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm" id="${$name}-item-submit" disabled></form></div></div>`;
+        let $node = `
+            <div class="category ${$name}-category card mt-1" id="${$name}">
+                <div class="card-header d-flex justify-content-between" style="background-color: gold;">
+                    <span class="h4">
+                        <input type="checkbox" class="include-${$name}" name="include-category" checked>  ${$display}
+                    </span>
+                    <i class="bi bi-x-square ml-1 ${$name}-cat-delete h4"></i>
+                </div>
+                <div class="card-body">
+                    <table class="table table-hover table-sm">
+                        <thead>
+                            <tr>
+                                <th>Include</th>
+                                <th>Item Description</th>
+                                <th>QTY</th><th>Grams</th>
+                                <th>Ounces</th>
+                                <th>Manage</th>
+                            </tr>
+                        </thead>
+                        <tbody class="${$name}">
+                        </tbody>
+                    </table>
+                    <form class="${$name}-item-generator d-flex justify-content-center p-1 border rounded">
+                        <div class="mr-1">
+                            <span>Create A New Item: </span>
+                            <input type="text" name="item" class="${$name}-desc" autofocus>
+                        </div>
+                        <div class="mr-1">
+                            <span>Quantity: </span>
+                            <input type="text" name="quantity" size="3" class="${$name}-qty">
+                        </div>
+                        <div class="mr-1">
+                            <span>Weight: </span>
+                            <input type="text" min="0" size="5" name="weight" class="${$name}-weight">
+                        </div>
+                        <div class="mr-1 d-flex flex-sm-wrap">
+                            <span>Units: </span>
+                            <span class="d-sm-flex justify-content-sm-start">
+                                <input type="radio" name="units" id="${$name}-grams" value="grams" ${$('input[name="targetUnits"]:checked').val() === "grams" ? "checked" : ""}checked>
+                                <label for="${$name}-grams"> g</label>
+                                <input type="radio" name="units" id="${$name}-ounces" value="ounces" ${$('input[name="targetUnits"]:checked').val() === "ounces" ? "checked" : ""}>
+                                <label for="${$name}-ounces"> oz</label>
+                            </span
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <input type="submit" value="Create" class="ml-1 btn btn-outline-secondary btn-sm" id="${$name}-item-submit" disabled>
+                        </div>
+                    </form>
+                </div>
+            </div>`;
 
         // Animate new category
         $($node).hide().insertBefore('#category-generator').slideDown('slow');
