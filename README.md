@@ -32,6 +32,8 @@
 3. Verify you have Python and Django installed on your system. If not you will need to load them.
 4. Use ```python manage.py runserver``` to open the site.
 
+I have tried several times to host this site on Heroku, but no tutorial or instructions have worked.
+
 [Back to Top](#table-of-contents)
 
 ## Backplanner Introduction
