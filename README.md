@@ -97,6 +97,8 @@ The content below is a distillation of the notes I kept as I was building this s
 - Created the splash page
 - Addressed mobile responsiveness issues
 - Added position sticky to the dashboard so it's always visible
+- Added code to prevent duplicate item names within a category
+- Discovered newly created items do not have an event listener attached to the update button. Spent some time finding a fix for this.
 
 [Back to Top](#table-of-contents)
 

@@ -322,6 +322,14 @@ window.onload = function() {
         $(`#${category}-item-submit`).on('click', (e) => {
             e.preventDefault();
             let data = new FormData($(`form.${category}-item-generator`)[0]);
+            let $existing = []
+            $(`div#${category} input.item`).each(function(i, item) {
+                $existing.push($(item).val().toLowerCase());
+            });
+            if ($.inArray(data.get('item').toLowerCase(), $existing) != -1) {
+                alert('This item name already exists within this category. Please select a different name.');
+                return false;
+            }
             let record = {
                 include: true,
                 category: category,
@@ -377,6 +385,67 @@ window.onload = function() {
             // update dashboard values
             dashboardUpdate();
 
+            // Activate the update button
+            $(`div#${category} button.update-item:last`).on('click', function() {
+                let $oldItem = $($(`.${$(this).closest('tr').attr('class')}`)[0]).find(':input[type=text]').val().toLowerCase();
+                let $oldValues = {};
+                $(this).closest('tr').find('.items').each(function(i, item) {
+                    $oldValues[$(item).attr("name")] = $(item).val().toLowerCase();
+                });
+                let $inputs = $($(`.${$(this).closest('tr').attr('class')}`)[0]).find(':input[type=text],:input[type=number]');
+                if (this.innerText === "Update") {
+                    $($inputs).each(function(i, item) {
+                        $(item).prop('disabled',false).css({'border-color': "goldenrod", "border-weight": "1px", "border-style": "solid"});
+                    });
+                    $(this).removeClass('btn-outline-secondary').addClass('btn-warning').text("Submit");
+                    $(this).next().removeClass('btn-outline-secondary').addClass('btn-danger').text("Cancel");
+                } else if (this.innerText === "Submit") {
+                    $($inputs).each(function(i, item) {
+                        let field = $(item).attr("name");
+                        let value = $(item).val().toLowerCase();
+                        if (field === "grams") {
+                            if (parseFloat($oldValues.grams) !== parseFloat(value)) {
+                                $($($(`.${$(this).closest('tr').attr('class')}`)[0]).find('[name="ounces"]')[0]).val(round(parseFloat(value) * 0.035274,1));
+                            }
+                        }
+                        if (field === "ounces") {
+                            if (parseFloat($oldValues.ounces) !== parseFloat(value)) {
+                                $($($(`.${$(this).closest('tr').attr('class')}`)[0]).find('[name="grams"]')[0]).val(round(parseFloat(value) * 28.35,1));
+                            }
+                        }
+                    });
+                    // Fetch to send updated values to db
+                    let $values = {
+                        oldItem: $oldItem,
+                        include: true,
+                        category: $(this).closest('div.category').attr('id'),
+                    };
+                    $($inputs).each(function(i, item) {
+                        if ($(item).attr('type') === "text") {
+                            $values[$(item).attr("name")] = $(item).val().toLowerCase();
+                        } else {
+                            $values[$(item).attr("name")] = parseFloat($(item).val());
+                        }
+                    });
+                    fetch('/update_item', {
+                        method: 'POST',
+                        body: JSON.stringify($values)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        console.log(result);
+                    });          
+
+                    dashboardUpdate();
+                    // Revert to original buttons
+                    $(this).removeClass('btn-warning').addClass('btn-outline-secondary').text("Update");
+                    $(this).next().removeClass('btn-danger').addClass('btn-outline-secondary').text("Delete");
+                    $($inputs).each(function(i, item) {
+                        $(item).prop('disabled',true).css('border', 'none');
+                    });
+                }
+            });
+            
             // Activate the item include button
             $(`.include-${category}-${record.item}`).on('change', function() {
                 fetch('/include', {
@@ -392,19 +461,35 @@ window.onload = function() {
 
             // Activate the item delete button
             $(`#${category}-${record.item}-delete`).on('click', function() {
-                if (confirm(`Are you sure you want to delete ${record.item} from ${category}?`)) {
-                    fetch('/delete_item', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            category: category,
-                            item: record.item
+                if (this.innerText === "Delete") {
+                    if (confirm(`Are you sure you want to delete ${record.item} from ${category}?`)) {
+                        fetch('/delete_item', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                category: category,
+                                item: record.item
+                            })
                         })
+                        .then(response => response.json())
+                        .then(result => {
+                            console.log(result);
+                        });
+                        $(this).closest('tr').slideUp('slow', function() {
+                            $(this).remove();
+                        });
+                        dashboardUpdate();
+                    }
+                } else if (this.innerText === "Cancel") {
+                    let $inputs = $($(`.${$(this).closest('tr').attr('class')}`)[0]).find(':input[type=text],:input[type=number]');
+                    // Revert to original buttons
+                    $(this).removeClass('btn-danger').addClass('btn-outline-secondary').text("Delete");
+                    $(this).prev().removeClass('btn-warning').addClass('btn-outline-secondary').text("Update");
+                    $($inputs).each(function(i, item) {
+                        $(item).prop('disabled',true).css('border', 'none');
                     });
-                    $(this).closest('tr').slideUp('slow', function() {
-                        $(this).remove();
-                    });
-                    dashboardUpdate();
                 }
+
+
             });
         });
     }

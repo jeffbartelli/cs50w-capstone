@@ -103,7 +103,7 @@
 </div>
 <div id="categories">
     {% for cats in categories %}
-    <div class="category card mt-1" id="{{ cats }}">
+    <div class="category card mt-1 {{ cats }}-category" id="{{ cats }}">
         <div class="card-header d-flex justify-content-between" style="background-color: gold;">
             <span class="h4"><input type="checkbox" class="include-{{ cats }}" name="include-category" checked>  {{ cats|capfirst }}</span>
             <i class="bi bi-x-square ml-1 {{ cats }}-cat-delete h4"></i>
