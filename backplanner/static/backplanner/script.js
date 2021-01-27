@@ -289,7 +289,7 @@ window.onload = function() {
 
         // Category Include/Exclude Listener
         $(`.include-${category}`).on('change', function() {
-            /* This fetch is unnecessary at this time. If I can figure out how to create the Category model that I want, then it will be refactored and reactivated.
+            // /* This fetch is unnecessary at this time. If I can figure out how to create the Category model that I want, then it will be refactored and reactivated. */
             // fetch('/include', {
             //     method: "PUT",
             //     body: JSON.stringify({
@@ -305,7 +305,6 @@ window.onload = function() {
                 });
             } else {
                 $(this).closest('.category').find('input[name="include-item"]').each(function(i, item) {
-                    console.log(item);
                     $(item).attr('disabled', true);
                 });
             }

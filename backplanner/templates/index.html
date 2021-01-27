@@ -23,46 +23,43 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card" id="dashboard">
     <div class="card-header d-flex justify-content-center" style="background-color: gold;">
         <h3>Back Facts</h3>
     </div>
-    <div class="card-body">
-        <div class="d-flex justify-content-center">
+    <div class="card-body d-flex justify-content-around">
+        <div class="">
             <form id="packWeight">
                 <label for="targetWeight">Target Weight: <input type="text" id="targetWeight" data-value="{{ user.weight }}" placeholder="0" min="0" size="3" value="{{ user.weight }}" autofocus> Units: <input type="radio" name="targetUnits" id="total-grams" value="grams" {% if user.units == "grams" %}checked {% endif %}><label for="grams">g</label> <input type="radio" name="targetUnits" id="total-ounces" value="ounces" {% if user.units == "ounces" %} checked {% endif %}><label for="ounces">oz</label></label>
                 <input type="submit" value="Update" id="update-weight" class="btn btn-outline-secondary btn-sm">
             </form>
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col"></th>
+                        <th scope="col">grams</th>
+                        <th scope="col">ounces</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">Total Pack Weight</th>
+                        <td id="total-g" style="text-align: right;">0</td>
+                        <td id="total-oz" style="text-align: right;">0</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Variance (+/-)</th>
+                        <td id="var-g" style="text-align: right;">0</td>
+                        <td id="var-oz" style="text-align: right;">0</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Total Items</th>
+                        <td id="total-item" colspan="2" style="text-align: center;">0</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <div class="d-flex justify-content-around">
-            <div>
-                <table class="table table-sm table-hover">
-                    <thead>
-                        <tr>
-                            <th scope="col"></th>
-                            <th scope="col">grams</th>
-                            <th scope="col">ounces</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row">Total Pack Weight</th>
-                            <td id="total-g" style="text-align: right;">0</td>
-                            <td id="total-oz" style="text-align: right;">0</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Variance (+/-)</th>
-                            <td id="var-g" style="text-align: right;">0</td>
-                            <td id="var-oz" style="text-align: right;">0</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Total Items</th>
-                            <td id="total-item" colspan="2" style="text-align: center;">0</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div>
+        <div class="">
             <table class="table table-hover table-sm" id="cat-table">
                 <thead>
                     <tr>
@@ -101,7 +98,6 @@
                     {% endfor %}
                 </tbody>
             </table>
-            </div>
         </div>
     </div>
 </div>

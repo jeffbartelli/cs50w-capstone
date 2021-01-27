@@ -19,3 +19,9 @@ nav {
 body {
     padding-top: 60px;
 }
+
+#dashboard {
+    position: sticky;
+    top: -11px;
+    z-index: 1000;
+}

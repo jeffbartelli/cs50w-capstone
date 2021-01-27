@@ -92,6 +92,7 @@ The content below is a distillation of the notes I kept as I was building this s
 - Fixed minor UI design items, to include bootstrap class assignment and changes in javascript.
 - Created the splash page
 - Addressed mobile responsiveness issues
+- Added position sticky to the dashboard so it's always visible
 
 ## Backplanner Files
 Backplanner is a single page website (excluding the borrowed login.html and register.html files). The bulk of code is based in the script.js file, while the page layout is in index.html and the backend work in views.py. Some minor styling was done in styles.css, though most of the styling is based on bootstrap classes. The major components of each file are detailed below.
