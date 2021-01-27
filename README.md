@@ -2,17 +2,13 @@
 ## cs50w-capstone
 
 ## Table of Contents
-[Capstone Requirements](#capstone-requirements)
-
-[How To Run This Application](#how-to-run-this-application)
-
-[Backplanner Introduction](#backplanner-introduction)
-
-[Backplanner Introduction](#backplanner-introduction)
-
-[Backplanner Development Requirements](#backplanner-development-requirements)
-
-[Backplanner Files](#backplanner-files)
+- [Capstone Requirements](#capstone-requirements)
+- [How To Run This Application](#how-to-run-this-application)
+- [Backplanner Introduction](#backplanner-introduction)
+- [Backplanner Introduction](#backplanner-introduction)
+- [Backplanner Development Requirements](#backplanner-development-requirements)
+- [Backplanner Development Notes](#backplanner-development-notes)
+- [Backplanner Files](#backplanner-files)
 
 ## Capstone Requirements
 - [x] Must not be similar to previous projects
@@ -33,6 +29,10 @@
 2. Using the command line, navigate to the folder that contains this repo.
 3. Verify you have Python and Django installed on your system. If not you will need to load them.
 4. Use ```python manage.py runserver``` to open the site.
+
+~~*** Or ***~~
+
+~~Visit on Heroku~~
 
 ## Backplanner Introduction
 Like many of the websites I've built in the past, Backplanner is based on a Google Sheets tool I built to record the weight of each item of camping gear I have, and to allow me to track what items I plan to carry with me on backpacking and bike touring trips. Ultimately the tool helps me to cut weight when necessary and to identify items that aren't worth the trouble to carry. Other people have used copies of that original tool and it was clear that it was a good candidate for my capstone project.
@@ -65,6 +65,34 @@ To the best of my knowledge I have not included any Python libraries or packages
 - [x] **Create New Item** is a section located at the bottom of each category. It allows the agent to enter the necessary details for a new item. Once all fields are populated, the 'Create' button is enabled and the user can submit the new item. This is sent to the Item Model in Django.
 - [x] Django Models & Views have been created to handle all database actions triggered by agent interactions with the application. This includes POST and PUT calls and spans the creation of new records, the modification of records, and the deletion of records.
 
+## Backplanner Development Notes
+The content below is a distillation of the notes I kept as I was building this site. This will give a sense of sequence of actions I took to build the page, as well as notes on some of the challenges I faced.
+
+- Set up the new Django project, with minor tweaks and changes to get the project to function on my system
+- Borrowed the registration and login content from a previous CS50 assignment
+- Creation of Django models for the site. The primary model is called **Item** and contains the details of items created by agents. Additional fields were added to the **User** model to allow for tracking preferences.
+- Figured out how to include jQuery functionality within a Django project. Also had to get a better understanding of static files within Django to connect to my .js and .css files.
+- Created wireframe drawings of the overall page design, category cards, new item and new category interfaces
+- Created the basic navigation and Bootstrap cards that make up the application interface. As I did this I included elements with html/bootstrap and created empty event listeners for those elements within script.js
+- Wrote the collapse functionality for the 'How It Works' section, followed by the functionality for the 'Create a New Category' element. This inserts a new category card, as well as attached event listeners to elements within that card.
+- Built out the functionality for the 'Create New Item' element within category cards. At this stage I've only created the UI and event listeners. I have drafted JS to create an object that will be sent to Python. Additional JS and Python functionality will come later.
+- Encountered a problem with a script that was attaching event listeners to dynamically generated content. Identified the problem as an unnecessary loop and refactored the code.
+- Created the first iteration of dashboardUpdate() within script.js for collecting data from the category cards and updating the dashboard tables.
+- Improved the 'Create a New Item' UI so that the 'Create' button is disabled until all input fields are populated.
+- Generated a superuser login within Django and then inserted dummy data to test whether my code functions correctly. Various little problems cropped up but were easily addressed. A major bug appeared when creating a new category produced an exponentially growing count of cards. This was fixed by changing the way I was checking for specific classes within elements (I used the jquery hasClass() method to fix the error).
+- Refactored javascript event listener attachment loops to reduce duplicative code and to attach event listeners to content generated by Python template structures. This required some experimentation with inserting template structures, but wasn't too challenging.
+- Redesigned the update item process and UI to improve the look of the interface and facilitate the collection of input values
+- Began building fetch() functions for passing data to Python.
+- Built Python functions for deleting categories and items. Testing returned good results
+- Tested logging in and logging out, found duplicative elements were generated. Refactored javascript to remedy these problems.
+- Indulged in some gold plating and created a function to set all new item unit radio selectors to match the selected unit in the dashboard.
+- Refactored updateDashboard() to no longer require arguments and to use less code. Also removed vanilla javascript code and replaced with jquery
+- Tackled the include/exclude functionality. Event listeners had been in place, but fetch() scripts needed to be created and updateDashboard() needed conditional logic to reference the include checkboxes.
+- Inserted code for execution when updating items. This code checks whether the grams or ounces amount changed, and if so updates the other measurment accordingly.
+- Fixed minor UI design items, to include bootstrap class assignment and changes in javascript.
+- Created the splash page
+- Addressed mobile responsiveness issues
+
 ## Backplanner Files
 Backplanner is a single page website (excluding the borrowed login.html and register.html files). The bulk of code is based in the script.js file, while the page layout is in index.html and the backend work in views.py. Some minor styling was done in styles.css, though most of the styling is based on bootstrap classes. The major components of each file are detailed below.
 
@@ -81,16 +109,50 @@ splash.css contains minimal css, but it does include a media query that improves
 This file contains the entire functional part of the application (excluding splash.html, login.html, and register.html). Here I employ Django templates to populate the categories and items that are stored for each user in the database. This is accomplished with for loops. When necessary I employ conditional logic to mark inputs as checked.
 One issue I couldn't easily resolve (though I think the use of regular expressions could have accomplished it) was the duplication of code blocks between index.html and script.js. For example, the node for a category had to be duplicated within script.js in order to insert the template literals to populate class names and values. The template literals would be placed in the same locations as the django template tags, but I couldn't find an explanation of how to perform that replace.
 
+### layout.html
+This page includes the head information for the site, as well as the Bootstrap navbar content. I borrowed the navbar content from a previous assignment, though I did make stylistic changes and included additional content to improve the appearance when collapsed on mobile.
+
 ### styles.css
 There is very minimal styling in this file. The few items I included are focused on modifying input appearance or accommodating the fixed top navbar. 
 
 ### script.js
+This file is too large to detail every item included in it. I will provide a general overview with some detailed looks at specific functions or event listeners. All the javascript is contained within window.onload to ensure it doesn't trigger until the page is loaded.
 
+A number of event listeners are at the top of the file. These are attached to basic site functionality elements and are not attached to dynamically generated content.
+
+Standalone functions are also found at the top of the file. These functions were created to reduce code duplication later in the file. Here you will find dashboardUpdate(), which loops over the category cards and items to update the dashboard tables. This is called numerous times later in this file. Next is the event listener that checks values entered in the target weight fields and upon validation sends the data to Python for processing.
+
+The next few code blocks are responsible for creating new categories and attaching functionality to the items contained within the category card.
+
+Several loops follow that attach event listeners to buttons and elements within the category card, specifically focused on item creation, item update, item delete, category delete, and include/exclude functionality.
+
+Finally there are a number of functions that insert html content into the DOM. These include the html for the category card, for new item rows to be added to the item tables within a card, and for new subtotal table rows in the dashboard.
 
 ### views.py
+I have created nine views to support the application, and borrowed login_view, logout_view, and register from a previous CS50w project to support user accounts.
 
+The first view is basic and supports the splash page. This view checks to see if a user is logged in and if so, redirects them to the main page. 
 
-### models.py
+Next is the index view, which extracts data from the db and passes it to the index template to support content generation.
 
+New_item receives data from the page and creates a new item record within the Item model.
+
+Total_weight receives agent data from the page and updates the User model with the weight and units values from the dashboard.
+
+Return_visitor updates the User model so that the page can load with the 'How it works' section collapsed or expanded as desired.
+
+Update_item receives data from the page and updates the specified item record.
+
+Delete_item deletes the specified record from the Item model
+
+Delete_category deletes all items from the Item model that contain the selected category.
+
+Include function updates the include field of an item. This is necessary on page load to mark items that shouldn't be included in subtotals and totals. This field is essential to the weight tracking feature of the application.
 
 ### urls.py
+A collection of URL patterns. There is nothing extraordinary here. Nearly all paths are responding to data sent over by javascript.
+
+### models.py
+There are two models supporting this application: User and Item. The User model is an extension of AbstractUser, but includes several additional fields. There is 'visited' which evolved to be a boolean to indicate if the user wants the "How It Works" section collapsed on login. 'Weight' represents the agent's target pack weight, and 'units' is the unit of measurement for the target weight.
+
+The Item model includes descriptive information about the items that agents add to their packs. It is linked to the User model, and also has a created field that records the datetime of creation.

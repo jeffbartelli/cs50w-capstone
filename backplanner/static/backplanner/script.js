@@ -227,7 +227,6 @@ window.onload = function() {
                             }
                         }
                     });
-// TODO - create an object of old input values, then use this to compare against the new values. If a weight has changed then the other one needs to be adjusted.
                     // Fetch to send updated values to db
                     let $values = {
                         oldItem: $oldItem,
@@ -290,6 +289,7 @@ window.onload = function() {
 
         // Category Include/Exclude Listener
         $(`.include-${category}`).on('change', function() {
+            /* This fetch is unnecessary at this time. If I can figure out how to create the Category model that I want, then it will be refactored and reactivated.
             // fetch('/include', {
             //     method: "PUT",
             //     body: JSON.stringify({
